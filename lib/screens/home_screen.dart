@@ -150,51 +150,49 @@ class OriginDest extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 40,
+      top: 20,
       left: 16,
       right: 16,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withValues(alpha: 0.6),
               blurRadius: 8,
-              offset: const Offset(0, 2),
+              offset: const Offset(0, 1),
             ),
           ],
         ),
-        child: Column(
+        child: Row(
           children: [
-            const TextField(
-              decoration: InputDecoration(
-                hintText: "Origen",
-                border: InputBorder.none,
-                isDense: true,
-              ),
-            ),
-            const Divider(height: 1, thickness: 1),
-            Row(
+            const Column(
               children: [
-                const Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Destino",
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Origen",
+                    border: InputBorder.none,
+                    isDense: true,
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    // TODO: intercambiar origen/destino
-                  },
-                  icon: const Icon(Icons.swap_vert_circle, size: 28),
-                  color: Colors.grey[700],
+                Divider(height: 1, thickness: 1),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Destino",
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
                 ),
               ],
+            ),
+            IconButton(
+              onPressed: () {
+                // TODO: intercambiar origen/destino
+              },
+              icon: const Icon(Icons.swap_vert_circle, size: 28),
+              color: Colors.grey[700],
             ),
           ],
         ),
