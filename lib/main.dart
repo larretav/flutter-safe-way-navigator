@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/providers/incident_provider.dart';
+import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/screens/home_screen.dart';
+import 'package:safe_way_navigator/screens/report_screen.dart';
 
 void main() {
   runApp(const AppState());
@@ -15,6 +17,7 @@ class AppState extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => IncidentProvider()),
+        ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
       child: const MyApp(),
     );
@@ -36,8 +39,8 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (context) => const HomeScreen(),
-          // '/report': (context) => const ReportScreen(),
+          '/': (context) => HomeScreen(),
+          '/report': (context) => const ReportScreen(),
           // '/history': (context) => const HistoryScreen(),
         });
   }

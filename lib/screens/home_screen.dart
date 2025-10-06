@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_way_navigator/providers/map_provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  late GoogleMapController mapController;
+class HomeScreen extends StatelessWidget {
 
   final LatLng _center = const LatLng(25.7903, -108.9859);
-  // Coordenadas de Los Mochis
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final mapProvider = Provider.of<MapProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Rutas Seguras"),
@@ -28,7 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // 🔹 Mapa simulado (placeholder)
           GoogleMap(
-            onMapCreated: _onMapCreated,
+            onMapCreated: mapProvider.onMapCreated,
+            onCameraMove: (position) {
+              mapProvider.updateLocation(position.target);
+            },
             initialCameraPosition: CameraPosition(
               target: _center,
               zoom: 14.0,
@@ -56,6 +51,9 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    final mapProvider = Provider.of<MapProvider>(context);
+
     return Positioned(
       bottom: 0,
       left: 0,
@@ -160,7 +158,7 @@ class OriginDest extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.6),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 1),
             ),
@@ -168,31 +166,34 @@ class OriginDest extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Column(
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Origen",
-                    border: InputBorder.none,
-                    isDense: true,
+            const Expanded(
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: "Origen",
+                      border: InputBorder.none,
+                      isDense: true,
+                    ),
                   ),
-                ),
-                Divider(height: 1, thickness: 1),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Destino",
-                    border: InputBorder.none,
-                    isDense: true,
+                  Divider(height: 1, thickness: 1),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: "Destino",
+                      border: InputBorder.none,
+                      isDense: true,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(width: 16),
             IconButton(
               onPressed: () {
                 // TODO: intercambiar origen/destino
               },
-              icon: const Icon(Icons.swap_vert_circle, size: 28),
-              color: Colors.grey[700],
+              icon: const Icon(Icons.swap_vert, size: 28),
+              color: Colors.grey[500],
             ),
           ],
         ),
