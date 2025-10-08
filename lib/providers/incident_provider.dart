@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:safe_way_navigator/models/incident.dart';
+import 'package:safe_way_navigator/models/incident_model.dart';
 
 
 enum ReportSeverity { mild, moderate, severe }
