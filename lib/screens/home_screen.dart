@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 
 class HomeScreen extends StatelessWidget {
-
   final LatLng _center = const LatLng(25.7903, -108.9859);
 
   @override
@@ -17,12 +16,16 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Stack(
+        alignment: Alignment.center,
         children: [
           // 🔹 Mapa simulado (placeholder)
           GoogleMap(
             onMapCreated: mapProvider.onMapCreated,
             onCameraMove: (position) {
-              mapProvider.updateLocation(position.target);
+              mapProvider.updateCoords(position.target);
+            },
+            onCameraIdle: () {
+              mapProvider.updateLocation(mapProvider.selectedLocation);
             },
             initialCameraPosition: CameraPosition(
               target: _center,
@@ -31,6 +34,14 @@ class HomeScreen extends StatelessWidget {
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
+          ),
+
+          const IgnorePointer(
+            child: Icon(
+              Icons.location_pin,
+              size: 50,
+              color: Colors.red,
+            ),
           ),
 
           // 🔹 Inputs en la parte superior
@@ -51,7 +62,6 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     final mapProvider = Provider.of<MapProvider>(context);
 
     return Positioned(
@@ -64,17 +74,15 @@ class MapFooter extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: FloatingActionButton(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                onPressed: () {
-                  Navigator.pushNamed(context, "/history");
-                },
-                child: const Icon(Icons.history),
-              ),
+            FloatingActionButton(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              onPressed: () {
+                Navigator.pushNamed(context, "/history");
+              },
+              child: const Icon(Icons.history),
             ),
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(4.0),
               decoration: BoxDecoration(
@@ -92,14 +100,16 @@ class MapFooter extends StatelessWidget {
                 children: [
                   Icon(Icons.mic, size: 18, color: Colors.black54),
                   SizedBox(width: 6),
-                  Text(
-                    'Di "Hola Mapa" para activar el Reconocimiento de voz',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                  Expanded(
+                    child: Text(
+                      'Di "Hola Mapa" para activar el Reconocimiento de voz',
+                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               children: [
                 // Botón Reportar
@@ -149,8 +159,8 @@ class OriginDest extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       top: 20,
-      left: 16,
-      right: 16,
+      left: 10,
+      right: 10,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(

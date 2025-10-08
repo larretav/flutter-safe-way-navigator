@@ -1,6 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:widgets_easier/widgets_easier.dart';
 
 enum ReportSeverity { mild, moderate, severe }
@@ -55,13 +57,15 @@ class _ReportScreenState extends State<ReportScreen> {
               const SizedBox(height: 16),
 
               // Ubicación
-              const Text("Ubicación", style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Ubicación",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              const CurrentLocation(),
+              const CurrentAddress(),
               const SizedBox(height: 16),
 
               // Tipo de incidente
-              const Text("Tipo de incidente", style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Tipo de incidente",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
               Expanded(
                 child: DropdownMenu<String>(
@@ -92,7 +96,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
               const SizedBox(height: 16),
               // Gravedad (leve, moderado, grave)
-              const Text("Gravedad", style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Gravedad",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
 
               SegmentedButton(
@@ -125,7 +130,8 @@ class _ReportScreenState extends State<ReportScreen> {
               const SizedBox(height: 16),
 
               // Descripción breve
-              const Text("Descripción breve (opcional)", style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Descripción breve (opcional)",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
               TextFormField(
                 controller: _descriptionController,
@@ -134,7 +140,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   hintText: "Agrega más detalles...",
-                  border: OutlineInputBorder( borderRadius: BorderRadius.all(Radius.circular(12.0)) ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 ),
               ),
 
@@ -156,7 +163,8 @@ class _ReportScreenState extends State<ReportScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     // TODO: enviar reporte a Provider o BD
-                    ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text("Incidente reportado con éxito ✅")));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Incidente reportado con éxito ✅")));
                     Navigator.pop(context);
                   }
                 },
@@ -179,20 +187,23 @@ class UploadEvidence extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // TODO: implementar subir foto
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Subir/Tomar foto")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Subir/Tomar foto")));
       },
       child: Container(
         padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
-        decoration: ShapeDecoration(shape: DashedBorder(borderRadius: BorderRadius.circular(10))),
-        child: const Text("Subir/Tomar foto", style: TextStyle(color: Colors.black54)),
+        decoration: ShapeDecoration(
+            shape: DashedBorder(borderRadius: BorderRadius.circular(10))),
+        child: const Text("Subir/Tomar foto",
+            style: TextStyle(color: Colors.black54)),
       ),
     );
   }
 }
 
-class CurrentLocation extends StatelessWidget {
-  const CurrentLocation({
+class CurrentAddress extends StatelessWidget {
+  const CurrentAddress({
     super.key,
   });
 
@@ -207,12 +218,15 @@ class CurrentLocation extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
-              child: Text(
-                  // TODO: Reemplazar por la respuesta de geocoding
-                  "Blvd. Francisco Agraz, Tepeca, 81248 Los Mochis, Sin.",
-                  style: TextStyle(fontWeight: FontWeight.w600))),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.location_pin))
+          Expanded(
+            child: Consumer<MapProvider>(
+                builder: (context, map, _) =>  Text( map.address ?? "Obteniendo dirección...", style: const TextStyle(fontWeight: FontWeight.w600))),
+          ),
+          IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.location_pin))
         ],
       ),
     );

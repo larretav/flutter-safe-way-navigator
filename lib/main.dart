@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/providers/incident_provider.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
+import 'package:safe_way_navigator/screens/history_screen.dart';
 import 'package:safe_way_navigator/screens/home_screen.dart';
 import 'package:safe_way_navigator/screens/report_screen.dart';
 
@@ -34,14 +35,14 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
           useMaterial3: true,
         ),
         initialRoute: '/',
         routes: {
           '/': (context) => HomeScreen(),
           '/report': (context) => const ReportScreen(),
-          // '/history': (context) => const HistoryScreen(),
+          '/history': (context) => const HistoryScreen(),
         });
   }
 }
