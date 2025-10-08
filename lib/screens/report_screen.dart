@@ -3,9 +3,10 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
+import 'package:safe_way_navigator/enum/report-severity.enum.dart';
 import 'package:widgets_easier/widgets_easier.dart';
 
-enum ReportSeverity { mild, moderate, severe }
+
 
 typedef MenuEntry = DropdownMenuEntry<String>;
 const List<String> incidentTypes = [
