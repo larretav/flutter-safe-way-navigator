@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/report_model.dart';
 
 class ReportProvider with ChangeNotifier {
@@ -8,6 +9,7 @@ class ReportProvider with ChangeNotifier {
       type: "Accidente",
       severity: "Grave",
       address: "Blvd. Rosales y Serdán",
+      coords: const LatLng(25.7969, -108.9954),
       date: DateTime.now().subtract(const Duration(hours: 1)),
     ),
     Report(
@@ -15,6 +17,7 @@ class ReportProvider with ChangeNotifier {
       type: "Inundación",
       severity: "Moderado",
       address: "Av. Independencia",
+      coords: const LatLng(25.7996, -109.0108),
       date: DateTime.now().subtract(const Duration(hours: 3)),
     ),
     Report(
@@ -22,6 +25,7 @@ class ReportProvider with ChangeNotifier {
       type: "Obras viales",
       severity: "Leve",
       address: "Calle Hidalgo",
+      coords: const LatLng(25.8231, -108.9737),
       date: DateTime.now().subtract(const Duration(days: 1)),
     ),
   ];

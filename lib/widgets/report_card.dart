@@ -6,17 +6,6 @@ class ReportCard extends StatelessWidget {
 
   const ReportCard({super.key, required this.report});
 
-  Color _severityColor(String severity) {
-    switch (severity.toLowerCase()) {
-      case "grave":
-        return Colors.red;
-      case "moderado":
-        return Colors.orange;
-      default:
-        return Colors.green;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -28,7 +17,7 @@ class ReportCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           Icons.warning_amber_rounded,
-          color: _severityColor(report.severity),
+          color: report.severityColor,
           size: 36,
         ),
         title: Text(
@@ -36,20 +25,20 @@ class ReportCard extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          "${report.address}\n${_formatDate(report.date)}",
+          "${report.address}\n${report.formattedDate}",
           style: const TextStyle(fontSize: 13),
         ),
         isThreeLine: true,
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: _severityColor(report.severity).withValues(alpha: 0.1),
+            color: report.severityColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             report.severity,
             style: TextStyle(
-              color: _severityColor(report.severity),
+              color: report.severityColor,
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
@@ -57,13 +46,5 @@ class ReportCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    if (date.day == now.day && date.month == now.month && date.year == now.year) {
-      return "Hoy ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
-    }
-    return "${date.day}/${date.month}/${date.year}";
   }
 }

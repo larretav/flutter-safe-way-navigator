@@ -92,9 +92,11 @@ class MapFooter extends StatelessWidget {
                 children: [
                   Icon(Icons.mic, size: 18, color: Colors.black54),
                   SizedBox(width: 6),
-                  Text(
-                    'Di "Hola Mapa" para activar el Reconocimiento de voz',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                  Expanded(
+                    child: Text(
+                      'Di "Hola Mapa" para activar el Reconocimiento de voz',
+                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
                   ),
                 ],
               ),
