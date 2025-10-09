@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
+import 'package:safe_way_navigator/widgets/address_search_field.dart';
 
 class HomeScreen extends StatelessWidget {
   final LatLng _center = const LatLng(25.7903, -108.9859);
@@ -62,8 +64,6 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mapProvider = Provider.of<MapProvider>(context);
-
     return Positioned(
       bottom: 0,
       left: 0,
@@ -157,6 +157,8 @@ class OriginDest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mapProvider = Provider.of<MapProvider>(context);
+
     return Positioned(
       top: 20,
       left: 10,
@@ -176,23 +178,21 @@ class OriginDest extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: "Origen",
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
+                  AddressSearchField(
+                    hintText: "Origen",
+                    onPlaceSelected: (address, location) {
+                      mapProvider.setOrigin(LocationPlace( address: address, latlng: location) );
+                    },
                   ),
-                  Divider(height: 1, thickness: 1),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: "Destino",
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
+                  const Divider(),
+                  AddressSearchField(
+                    hintText: "Destino",
+                    onPlaceSelected: (address, location) { 
+                      mapProvider.setDestination(LocationPlace( address: address, latlng: location) );
+                    },
                   ),
                 ],
               ),
@@ -200,7 +200,7 @@ class OriginDest extends StatelessWidget {
             const SizedBox(width: 16),
             IconButton(
               onPressed: () {
-                // TODO: intercambiar origen/destino
+                mapProvider.swapLocations();
               },
               icon: const Icon(Icons.swap_vert, size: 28),
               color: Colors.grey[500],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:safe_way_navigator/models/location_model.dart';
 
 class MapProvider with ChangeNotifier {
   late GoogleMapController mapController;
@@ -8,8 +9,14 @@ class MapProvider with ChangeNotifier {
   LatLng? _selectedLocation;
   String? _address;
 
+  LocationPlace? _origin;
+  LocationPlace? _destination;
+
   LatLng? get selectedLocation => _selectedLocation;
   String? get address => _address;
+
+  LocationPlace? get origin => _origin;
+  LocationPlace? get destination => _destination;
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -40,7 +47,16 @@ class MapProvider with ChangeNotifier {
     } catch (e) {
       _address = "Dirección no disponible";
     }
-    
+
+    notifyListeners();
+  }
+
+  void setOrigin(LocationPlace data) => _origin = data;
+  void setDestination(LocationPlace data) => _destination = data;
+  void swapLocations() {
+    final temp = _origin;
+    _origin = _destination;
+    _destination = temp;
     notifyListeners();
   }
 }
