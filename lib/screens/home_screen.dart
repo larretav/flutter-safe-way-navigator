@@ -181,17 +181,21 @@ class OriginDest extends StatelessWidget {
             Expanded(
               child: Column(
                 children: [
-                  AddressSearchField(
+                  AddressAutocomplete(
                     hintText: "Origen",
-                    onPlaceSelected: (address, location) {
-                      mapProvider.setOrigin(LocationPlace( address: address, latlng: location) );
+                    controller: mapProvider.originController,
+                    onPlaceSelected: (address, coords) {
+                      mapProvider.setOrigin(
+                          LocationPlace(address: address, latlng: coords));
                     },
                   ),
                   const Divider(),
-                  AddressSearchField(
+                  AddressAutocomplete(
                     hintText: "Destino",
-                    onPlaceSelected: (address, location) { 
-                      mapProvider.setDestination(LocationPlace( address: address, latlng: location) );
+                    controller: mapProvider.destinationController,
+                    onPlaceSelected: (address, location) {
+                      mapProvider.setDestination(
+                          LocationPlace(address: address, latlng: location));
                     },
                   ),
                 ],

@@ -221,7 +221,7 @@ class CurrentAddress extends StatelessWidget {
         children: [
           Expanded(
             child: Consumer<MapProvider>(
-                builder: (context, map, _) =>  Text( map.address ?? "Obteniendo dirección...", style: const TextStyle(fontWeight: FontWeight.w600))),
+                builder: (context, map, _) =>  Text( map.currentAddress ?? "Obteniendo dirección...", style: const TextStyle(fontWeight: FontWeight.w600))),
           ),
           IconButton(
               onPressed: () {
