@@ -66,13 +66,15 @@ class MapProvider with ChangeNotifier {
   }
 
   void swapLocations() {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final temp = _origin;
 
     _origin = _destination;
     _destination = temp;
 
-    originController.text = _destination?.address ?? "";
-    destinationController.text = _origin?.address ?? "";
+    originController.text = _origin?.address ?? "";
+    destinationController.text = _destination?.address ?? "";
 
     notifyListeners();
   }

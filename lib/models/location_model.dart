@@ -9,4 +9,6 @@ class LocationPlace {
     required this.address,
     required this.latlng,
   });
+
+  factory LocationPlace.getEmpty() => LocationPlace(address: "", latlng: const LatLng(lat: 0, lng: 0));
 }

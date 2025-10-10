@@ -3,10 +3,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
-import 'package:safe_way_navigator/widgets/address_search_field.dart';
+import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
 
 class HomeScreen extends StatelessWidget {
   final LatLng _center = const LatLng(25.7903, -108.9859);
+
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +189,9 @@ class OriginDest extends StatelessWidget {
                     onPlaceSelected: (address, coords) {
                       mapProvider.setOrigin(
                           LocationPlace(address: address, latlng: coords));
+                    },
+                    onCleared: () {
+                      mapProvider.setOrigin(LocationPlace.getEmpty());
                     },
                   ),
                   const Divider(),
