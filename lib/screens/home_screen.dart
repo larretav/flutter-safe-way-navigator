@@ -14,6 +14,15 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final mapProvider = Provider.of<MapProvider>(context);
 
+    mapProvider.initialize();
+
+    if(mapProvider.currentLocation == null){
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Rutas Seguras"),
@@ -32,7 +41,7 @@ class HomeScreen extends StatelessWidget {
               mapProvider.updateLocation(mapProvider.selectedLocation);
             },
             initialCameraPosition: CameraPosition(
-              target: _center,
+              target: mapProvider.currentLocation!,
               zoom: 14.0,
             ),
             myLocationEnabled: true,
@@ -66,6 +75,10 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final mapProvider = Provider.of<MapProvider>(context);
+
+
     return Positioned(
       bottom: 0,
       left: 0,
@@ -76,6 +89,13 @@ class MapFooter extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            FloatingActionButton.small(
+              heroTag: "centerLocation",
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.blue,
+              onPressed: mapProvider.moveToCurrentLocation,
+              child: const Icon(Icons.my_location),
+            ),
             FloatingActionButton(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,

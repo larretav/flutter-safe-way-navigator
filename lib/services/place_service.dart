@@ -8,7 +8,8 @@ class PlaceService {
 
     final result = await _places.findAutocompletePredictions(
       query,
-      countries: ['MX'], // puedes cambiarlo
+      countries: ['MX'],
+      origin: const LatLng(lat: 25.7903,lng: -108.9859) // Los Mochis
     );
     return result.predictions;
   }
