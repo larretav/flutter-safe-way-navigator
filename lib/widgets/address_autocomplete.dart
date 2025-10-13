@@ -72,16 +72,24 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
               return TextField(
                 controller: textEditingController,
                 focusNode: focusNode,
-                onChanged: (value) => setState(() { widget.controller.text = value; }),
+                onChanged: (value) => setState(() {
+                  widget.controller.text = value;
+                }),
                 decoration: InputDecoration(
                   hintText: widget.hintText,
                   border: InputBorder.none,
                   isDense: true,
+                  suffixIconConstraints: const BoxConstraints(minWidth: 20, minHeight: 20),
                   suffixIcon: widget.controller.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 14),
-                          onPressed: _clearField,
-                        )
+                        iconSize: 16,
+                        icon: const Icon(Icons.clear),
+                        constraints: const BoxConstraints(),
+                        style: IconButton.styleFrom(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: _clearField,
+                      )
                       : null,
                 ),
               );

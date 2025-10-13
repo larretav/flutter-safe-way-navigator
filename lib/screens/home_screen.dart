@@ -183,25 +183,31 @@ class OriginDest extends StatelessWidget {
             Expanded(
               child: Column(
                 children: [
-                  AddressAutocomplete(
-                    hintText: "Origen",
-                    controller: mapProvider.originController,
-                    onPlaceSelected: (address, coords) {
-                      mapProvider.setOrigin(
-                          LocationPlace(address: address, latlng: coords));
-                    },
-                    onCleared: () {
-                      mapProvider.setOrigin(LocationPlace.getEmpty());
-                    },
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: AddressAutocomplete(
+                      hintText: "Origen",
+                      controller: mapProvider.originController,
+                      onPlaceSelected: (address, coords) {
+                        mapProvider.setOrigin(
+                            LocationPlace(address: address, latlng: coords));
+                      },
+                      onCleared: () {
+                        mapProvider.setOrigin(LocationPlace.getEmpty());
+                      },
+                    ),
                   ),
                   const Divider(),
-                  AddressAutocomplete(
-                    hintText: "Destino",
-                    controller: mapProvider.destinationController,
-                    onPlaceSelected: (address, location) {
-                      mapProvider.setDestination(
-                          LocationPlace(address: address, latlng: location));
-                    },
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: AddressAutocomplete(
+                      hintText: "Destino",
+                      controller: mapProvider.destinationController,
+                      onPlaceSelected: (address, location) {
+                        mapProvider.setDestination(
+                            LocationPlace(address: address, latlng: location));
+                      },
+                    ),
                   ),
                 ],
               ),
