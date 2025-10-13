@@ -38,6 +38,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_maps_flutter: ^2.13.1
   widgets_easier: ^0.0.10
+  geocoding: ^4.0.0
+  flutter_google_places_sdk: ^0.4.2+1
 
 dev_dependencies:
   flutter_test:

@@ -1,0 +1,7 @@
+Home Screen
+- Obtener las coordenadas iniciales desde el GPS del telefono
+- Botón de Reset a la ubicacion actual del GPS
+- Actualizar constantemente las coordenadas
+- Icono indicador de la posicion actual 
+- Trazar las rutas con origen y destino
+- 

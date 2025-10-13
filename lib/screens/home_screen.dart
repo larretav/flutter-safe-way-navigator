@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
+import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
 
 class HomeScreen extends StatelessWidget {
-
   final LatLng _center = const LatLng(25.7903, -108.9859);
+
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +20,16 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Stack(
+        alignment: Alignment.center,
         children: [
           // 🔹 Mapa simulado (placeholder)
           GoogleMap(
             onMapCreated: mapProvider.onMapCreated,
             onCameraMove: (position) {
-              mapProvider.updateLocation(position.target);
+              mapProvider.updateCoords(position.target);
+            },
+            onCameraIdle: () {
+              mapProvider.updateLocation(mapProvider.selectedLocation);
             },
             initialCameraPosition: CameraPosition(
               target: _center,
@@ -31,6 +38,14 @@ class HomeScreen extends StatelessWidget {
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
+          ),
+
+          const IgnorePointer(
+            child: Icon(
+              Icons.location_pin,
+              size: 50,
+              color: Colors.red,
+            ),
           ),
 
           // 🔹 Inputs en la parte superior
@@ -51,9 +66,6 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    final mapProvider = Provider.of<MapProvider>(context);
-
     return Positioned(
       bottom: 0,
       left: 0,
@@ -64,17 +76,15 @@ class MapFooter extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: FloatingActionButton(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                onPressed: () {
-                  Navigator.pushNamed(context, "/history");
-                },
-                child: const Icon(Icons.history),
-              ),
+            FloatingActionButton(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              onPressed: () {
+                Navigator.pushNamed(context, "/history");
+              },
+              child: const Icon(Icons.history),
             ),
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(4.0),
               decoration: BoxDecoration(
@@ -101,7 +111,7 @@ class MapFooter extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               children: [
                 // Botón Reportar
@@ -149,10 +159,12 @@ class OriginDest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mapProvider = Provider.of<MapProvider>(context);
+
     return Positioned(
       top: 20,
-      left: 16,
-      right: 16,
+      left: 10,
+      right: 10,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -168,22 +180,33 @@ class OriginDest extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 children: [
-                  TextField(
-                    decoration: InputDecoration(
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: AddressAutocomplete(
                       hintText: "Origen",
-                      border: InputBorder.none,
-                      isDense: true,
+                      controller: mapProvider.originController,
+                      onPlaceSelected: (address, coords) {
+                        mapProvider.setOrigin(
+                            LocationPlace(address: address, latlng: coords));
+                      },
+                      onCleared: () {
+                        mapProvider.setOrigin(LocationPlace.getEmpty());
+                      },
                     ),
                   ),
-                  Divider(height: 1, thickness: 1),
-                  TextField(
-                    decoration: InputDecoration(
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: AddressAutocomplete(
                       hintText: "Destino",
-                      border: InputBorder.none,
-                      isDense: true,
+                      controller: mapProvider.destinationController,
+                      onPlaceSelected: (address, location) {
+                        mapProvider.setDestination(
+                            LocationPlace(address: address, latlng: location));
+                      },
                     ),
                   ),
                 ],
@@ -192,7 +215,7 @@ class OriginDest extends StatelessWidget {
             const SizedBox(width: 16),
             IconButton(
               onPressed: () {
-                // TODO: intercambiar origen/destino
+                mapProvider.swapLocations();
               },
               icon: const Icon(Icons.swap_vert, size: 28),
               color: Colors.grey[500],
