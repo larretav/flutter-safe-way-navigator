@@ -6,7 +6,6 @@ import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
 
 class HomeScreen extends StatelessWidget {
-  final LatLng _center = const LatLng(25.7903, -108.9859);
 
   const HomeScreen({super.key});
 
@@ -49,13 +48,13 @@ class HomeScreen extends StatelessWidget {
             zoomControlsEnabled: false,
           ),
 
-          const IgnorePointer(
-            child: Icon(
-              Icons.location_pin,
-              size: 50,
-              color: Colors.red,
-            ),
-          ),
+          // const IgnorePointer(
+          //   child: Icon(
+          //     Icons.location_pin,
+          //     size: 50,
+          //     color: Colors.red,
+          //   ),
+          // ),
 
           // 🔹 Inputs en la parte superior
           const OriginDest(),
@@ -96,6 +95,7 @@ class MapFooter extends StatelessWidget {
               onPressed: mapProvider.moveToCurrentLocation,
               child: const Icon(Icons.my_location),
             ),
+            const SizedBox(height: 10),
             FloatingActionButton(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
