@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,6 +15,7 @@ class MapProvider with ChangeNotifier {
   LatLng? _selectedLocation;
   String? _currentAddress;
   bool _initialized = false;
+  StreamSubscription<Position>? _positionStream;
 
   LocationPlace? _origin;
   LocationPlace? _destination;
@@ -27,7 +30,7 @@ class MapProvider with ChangeNotifier {
   Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
-    await getCurrentLocation();
+    await initializeLocationTracking();
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -98,7 +101,7 @@ class MapProvider with ChangeNotifier {
   }
 
   // Current Location
-  Future<void> getCurrentLocation() async {
+  Future<void> initializeLocationTracking() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -128,6 +131,25 @@ class MapProvider with ChangeNotifier {
 
     _currentLocation = LatLng(position.latitude, position.longitude);
     notifyListeners();
+
+
+    //Escucha cambios de posición
+    const locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 5, // metros antes de disparar una actualización
+    );
+
+    _positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings)
+            .listen((Position pos) {
+      _currentLocation = LatLng(pos.latitude, pos.longitude);
+      notifyListeners();
+
+      //Mueve la cámara si quieres seguimiento automático
+      mapController.animateCamera(
+        CameraUpdate.newLatLng(_currentLocation!),
+      );
+    });
   }
 
   void moveToCurrentLocation() {
@@ -136,5 +158,11 @@ class MapProvider with ChangeNotifier {
         CameraUpdate.newLatLngZoom(_currentLocation!, 16),
       );
     }
+  }
+
+  // Detener actualizaciones (por ejemplo, al cerrar la app)
+  void stopLocationTracking() {
+    _positionStream?.cancel();
+    _positionStream = null;
   }
 }

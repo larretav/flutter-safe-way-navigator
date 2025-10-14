@@ -5,23 +5,23 @@ import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
 
-class HomeScreen extends StatelessWidget {
-
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  @override
+  void dispose() {
+    Provider.of<MapProvider>(context, listen: false).stopLocationTracking();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final mapProvider = Provider.of<MapProvider>(context);
-
-    mapProvider.initialize();
-
-    if(mapProvider.currentLocation == null){
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Rutas Seguras"),
@@ -31,32 +31,42 @@ class HomeScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           // 🔹 Mapa simulado (placeholder)
-          GoogleMap(
-            onMapCreated: mapProvider.onMapCreated,
-            onCameraMove: (position) {
-              mapProvider.updateCoords(position.target);
+          Consumer<MapProvider>(
+            builder: (context, mapProvider, _) {
+              
+              mapProvider.initialize();
+
+              final location = mapProvider.currentLocation;
+              if (location == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return GoogleMap(
+                onMapCreated: mapProvider.onMapCreated,
+                // onCameraMove: (position) {
+                //   mapProvider.updateCoords(position.target);
+                // },
+                // onCameraIdle: () {
+                //   mapProvider.updateLocation(mapProvider.selectedLocation);
+                // },
+                initialCameraPosition: CameraPosition(
+                  target: mapProvider.currentLocation!,
+                  zoom: 14.0,
+                ),
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+              );
+
+              // const IgnorePointer(
+              //   child: Icon(
+              //     Icons.location_pin,
+              //     size: 50,
+              //     color: Colors.red,
+              //   ),
+              // ),
             },
-            onCameraIdle: () {
-              mapProvider.updateLocation(mapProvider.selectedLocation);
-            },
-            initialCameraPosition: CameraPosition(
-              target: mapProvider.currentLocation!,
-              zoom: 14.0,
-            ),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
           ),
-
-          // const IgnorePointer(
-          //   child: Icon(
-          //     Icons.location_pin,
-          //     size: 50,
-          //     color: Colors.red,
-          //   ),
-          // ),
-
-          // 🔹 Inputs en la parte superior
           const OriginDest(),
 
           // 🔹 Parte inferior: comandos y botones
@@ -74,9 +84,7 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final mapProvider = Provider.of<MapProvider>(context);
-
 
     return Positioned(
       bottom: 0,
@@ -125,7 +133,7 @@ class MapFooter extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Di "Hola Mapa" para activar el Reconocimiento de voz',
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ),
                 ],
