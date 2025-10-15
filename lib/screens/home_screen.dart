@@ -1,24 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
+import 'package:safe_way_navigator/widgets/map.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-
-  @override
-  void dispose() {
-    Provider.of<MapProvider>(context, listen: false).stopLocationTracking();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,50 +15,16 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Rutas Seguras"),
         centerTitle: true,
       ),
-      body: Stack(
+      body: const Stack(
         alignment: Alignment.center,
         children: [
           // 🔹 Mapa simulado (placeholder)
-          Consumer<MapProvider>(
-            builder: (context, mapProvider, _) {
-              
-              mapProvider.initialize();
-
-              final location = mapProvider.currentLocation;
-              if (location == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return GoogleMap(
-                onMapCreated: mapProvider.onMapCreated,
-                // onCameraMove: (position) {
-                //   mapProvider.updateCoords(position.target);
-                // },
-                // onCameraIdle: () {
-                //   mapProvider.updateLocation(mapProvider.selectedLocation);
-                // },
-                initialCameraPosition: CameraPosition(
-                  target: mapProvider.currentLocation!,
-                  zoom: 14.0,
-                ),
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-              );
-
-              // const IgnorePointer(
-              //   child: Icon(
-              //     Icons.location_pin,
-              //     size: 50,
-              //     color: Colors.red,
-              //   ),
-              // ),
-            },
-          ),
-          const OriginDest(),
+          TheMap(),
+          
+          OriginDest(),
 
           // 🔹 Parte inferior: comandos y botones
-          const MapFooter(),
+          MapFooter(),
         ],
       ),
     );
