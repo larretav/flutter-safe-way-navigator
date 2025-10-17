@@ -1,58 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
+import 'package:safe_way_navigator/widgets/map.dart';
 
 class HomeScreen extends StatelessWidget {
-  final LatLng _center = const LatLng(25.7903, -108.9859);
-
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final mapProvider = Provider.of<MapProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Rutas Seguras"),
         centerTitle: true,
       ),
-      body: Stack(
+      body: const Stack(
         alignment: Alignment.center,
         children: [
           // 🔹 Mapa simulado (placeholder)
-          GoogleMap(
-            onMapCreated: mapProvider.onMapCreated,
-            onCameraMove: (position) {
-              mapProvider.updateCoords(position.target);
-            },
-            onCameraIdle: () {
-              mapProvider.updateLocation(mapProvider.selectedLocation);
-            },
-            initialCameraPosition: CameraPosition(
-              target: _center,
-              zoom: 14.0,
-            ),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-          ),
-
-          const IgnorePointer(
-            child: Icon(
-              Icons.location_pin,
-              size: 50,
-              color: Colors.red,
-            ),
-          ),
-
-          // 🔹 Inputs en la parte superior
-          const OriginDest(),
+          TheMap(),
+          
+          OriginDest(),
 
           // 🔹 Parte inferior: comandos y botones
-          const MapFooter(),
+          MapFooter(),
         ],
       ),
     );
@@ -66,6 +38,8 @@ class MapFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mapProvider = Provider.of<MapProvider>(context);
+
     return Positioned(
       bottom: 0,
       left: 0,
@@ -76,6 +50,14 @@ class MapFooter extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            FloatingActionButton.small(
+              heroTag: "centerLocation",
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.blue,
+              onPressed: mapProvider.moveToCurrentLocation,
+              child: const Icon(Icons.my_location),
+            ),
+            const SizedBox(height: 10),
             FloatingActionButton(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -105,7 +87,7 @@ class MapFooter extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Di "Hola Mapa" para activar el Reconocimiento de voz',
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ),
                 ],
