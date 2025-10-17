@@ -143,12 +143,14 @@ class MapProvider with ChangeNotifier {
         Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position pos) {
       _currentLocation = LatLng(pos.latitude, pos.longitude);
-      notifyListeners();
 
       //Mueve la cámara si quieres seguimiento automático
       mapController.animateCamera(
         CameraUpdate.newLatLng(_currentLocation!),
       );
+
+      updateLocation(_currentLocation);
+      notifyListeners();
     });
   }
 
@@ -157,6 +159,7 @@ class MapProvider with ChangeNotifier {
       mapController.animateCamera(
         CameraUpdate.newLatLngZoom(_currentLocation!, 16),
       );
+      updateLocation(_currentLocation);
     }
   }
 
