@@ -152,6 +152,7 @@ class MapProvider with ChangeNotifier {
       updateLocation(_currentLocation);
       notifyListeners();
     });
+
   }
 
   void moveToCurrentLocation() {
