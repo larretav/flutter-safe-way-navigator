@@ -45,6 +45,7 @@ class _TheMapState extends State<TheMap> {
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
+      polylines: mapProvider.polylines,
     );
   }
 }

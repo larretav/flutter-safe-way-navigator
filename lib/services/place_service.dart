@@ -1,7 +1,8 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
 class PlaceService {
-  final FlutterGooglePlacesSdk _places = FlutterGooglePlacesSdk('AIzaSyDOOOh5RWBy7AJ5mfn-DzUrt5e_FcFrgV8');
+  final FlutterGooglePlacesSdk _places = FlutterGooglePlacesSdk(dotenv.env['GOOGLE_MAPS_API_KEY'] ?? "");
 
   Future<List<AutocompletePrediction>> search(String query) async {
     if (query.isEmpty) return [];
