@@ -174,13 +174,13 @@ class MapProvider with ChangeNotifier {
 
     // Opcional: centrar la cámara en la ruta
     final bounds = _getBounds(points);
-    _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }
 
   LatLngBounds _getBounds(List<LatLng> points) {
     double? x0, x1, y0, y1;
     for (final LatLng p in points) {
-      if (x0 == null) {
+      if (x0 == null || y0 == null) {
         x0 = x1 = p.latitude;
         y0 = y1 = p.longitude;
       } else {
