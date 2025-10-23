@@ -159,8 +159,7 @@ class MapProvider with ChangeNotifier {
   Future<void> drawRoute() async {
     if (_origin == null || _destination == null) return;
 
-    final points =
-        await DirectionsService.getRoutePoints(_origin.latlng!, _destination.latlng!);
+    final points = await DirectionsService.getRoutePoints(_origin!.latlng, _destination!.latlng);
 
     _polylines = {
       Polyline(

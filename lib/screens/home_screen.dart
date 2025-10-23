@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
@@ -20,7 +21,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           // 🔹 Mapa simulado (placeholder)
           TheMap(),
-          
+
           OriginDest(),
 
           // 🔹 Parte inferior: comandos y botones
@@ -170,9 +171,10 @@ class OriginDest extends StatelessWidget {
                     child: AddressAutocomplete(
                       hintText: "Origen",
                       controller: mapProvider.originController,
-                      onPlaceSelected: (address, coords) {
-                        mapProvider.setOrigin(
-                            LocationPlace(address: address, latlng: coords));
+                      onPlaceSelected: (address, latlng) {
+                        mapProvider.setOrigin(LocationPlace(
+                            address: address,
+                            latlng: LatLng(latlng.lat, latlng.lng)));
                       },
                       onCleared: () {
                         mapProvider.setOrigin(LocationPlace.getEmpty());
@@ -185,9 +187,9 @@ class OriginDest extends StatelessWidget {
                     child: AddressAutocomplete(
                       hintText: "Destino",
                       controller: mapProvider.destinationController,
-                      onPlaceSelected: (address, location) {
+                      onPlaceSelected: (address, latlng) {
                         mapProvider.setDestination(
-                            LocationPlace(address: address, latlng: location));
+                            LocationPlace(address: address, latlng: LatLng(latlng.lat, latlng.lng)));
                       },
                     ),
                   ),
