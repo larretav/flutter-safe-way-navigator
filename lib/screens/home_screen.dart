@@ -142,14 +142,19 @@ class OriginDest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final mapProvider = Provider.of<MapProvider>(context);
 
     return Positioned(
-      top: 20,
-      left: 10,
-      right: 10,
+      top: 10,
+      left: 18,
+      right: 18,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(
+            left: 12,
+            right: 4,
+            bottom: 8,
+            top: 8), //symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -188,21 +193,22 @@ class OriginDest extends StatelessWidget {
                       hintText: "Destino",
                       controller: mapProvider.destinationController,
                       onPlaceSelected: (address, latlng) {
-                        mapProvider.setDestination(
-                            LocationPlace(address: address, latlng: LatLng(latlng.lat, latlng.lng)));
+                        mapProvider.setDestination(LocationPlace(
+                            address: address,
+                            latlng: LatLng(latlng.lat, latlng.lng)));
                       },
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 8),
             IconButton(
               onPressed: () {
                 mapProvider.swapLocations();
               },
-              icon: const Icon(Icons.swap_vert, size: 28),
-              color: Colors.grey[500],
+              icon: const Icon(Icons.swap_vert, size: 24),
+              color: Colors.grey[600],
             ),
           ],
         ),
