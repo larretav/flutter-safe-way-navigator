@@ -175,6 +175,10 @@ class OriginDest extends StatelessWidget {
                         mapProvider.setOrigin(LocationPlace(
                             address: address,
                             latlng: LatLng(latlng.lat, latlng.lng)));
+                        if (mapProvider.origin != null &&
+                            mapProvider.destination != null) {
+                          mapProvider.drawRoute();
+                        }
                       },
                       onCleared: () {
                         mapProvider.setOrigin(LocationPlace.getEmpty());
@@ -188,8 +192,16 @@ class OriginDest extends StatelessWidget {
                       hintText: "Destino",
                       controller: mapProvider.destinationController,
                       onPlaceSelected: (address, latlng) {
-                        mapProvider.setDestination(
-                            LocationPlace(address: address, latlng: LatLng(latlng.lat, latlng.lng)));
+                        mapProvider.setDestination(LocationPlace(
+                            address: address,
+                            latlng: LatLng(latlng.lat, latlng.lng)));
+                        if (mapProvider.origin != null &&
+                            mapProvider.destination != null) {
+                          mapProvider.drawRoute();
+                        }
+                      },
+                      onCleared: () {
+                        mapProvider.setOrigin(LocationPlace.getEmpty());
                       },
                     ),
                   ),
