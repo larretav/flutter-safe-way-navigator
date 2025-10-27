@@ -13,8 +13,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Rutas Seguras"),
+        title: const Text(
+          "Rutas Seguras",
+          style: TextStyle(fontSize: 18),
+        ),
         centerTitle: true,
+        toolbarHeight: 48,
       ),
       body: const Stack(
         alignment: Alignment.center,
@@ -123,8 +127,7 @@ class MapFooter extends StatelessWidget {
                   style: IconButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12))),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 ),
               ],
             ),
@@ -142,7 +145,6 @@ class OriginDest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final mapProvider = Provider.of<MapProvider>(context);
 
     return Positioned(
@@ -151,10 +153,7 @@ class OriginDest extends StatelessWidget {
       right: 18,
       child: Container(
         padding: const EdgeInsets.only(
-            left: 12,
-            right: 4,
-            bottom: 8,
-            top: 8), //symmetric(horizontal: 12, vertical: 8),
+            left: 12, right: 4, bottom: 8, top: 8), //symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -178,10 +177,8 @@ class OriginDest extends StatelessWidget {
                       controller: mapProvider.originController,
                       onPlaceSelected: (address, latlng) {
                         mapProvider.setOrigin(LocationPlace(
-                            address: address,
-                            latlng: LatLng(latlng.lat, latlng.lng)));
-                        if (mapProvider.origin != null &&
-                            mapProvider.destination != null) {
+                            address: address, latlng: LatLng(latlng.lat, latlng.lng)));
+                        if (mapProvider.origin != null && mapProvider.destination != null) {
                           mapProvider.drawRoute();
                         }
                       },
@@ -198,10 +195,8 @@ class OriginDest extends StatelessWidget {
                       controller: mapProvider.destinationController,
                       onPlaceSelected: (address, latlng) {
                         mapProvider.setDestination(LocationPlace(
-                            address: address,
-                            latlng: LatLng(latlng.lat, latlng.lng)));
-                        if (mapProvider.origin != null &&
-                            mapProvider.destination != null) {
+                            address: address, latlng: LatLng(latlng.lat, latlng.lng)));
+                        if (mapProvider.origin != null && mapProvider.destination != null) {
                           mapProvider.drawRoute();
                         }
                       },

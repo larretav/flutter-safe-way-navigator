@@ -129,8 +129,7 @@ class MapProvider with ChangeNotifier {
 
     // Obtener ubicación actual
     final position = await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high));
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
 
     _currentLocation = LatLng(position.latitude, position.longitude);
     notifyListeners();
@@ -142,8 +141,7 @@ class MapProvider with ChangeNotifier {
     );
 
     _positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position pos) {
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position pos) {
       _currentLocation = LatLng(pos.latitude, pos.longitude);
 
       //Mueve la cámara si quieres seguimiento automático
@@ -152,8 +150,9 @@ class MapProvider with ChangeNotifier {
       );
 
       updateLocation(_currentLocation);
-      notifyListeners();
     });
+
+    setOrigin(LocationPlace(latlng: _currentLocation!, address: "Mi ubicación"));
   }
 
   Future<void> drawRoute() async {
