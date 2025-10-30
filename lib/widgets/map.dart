@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 
 class TheMap extends StatefulWidget {
@@ -31,6 +32,14 @@ class _TheMapState extends State<TheMap> {
     }
 
     return GoogleMap(
+      onTap: (latlng) {
+        if (mapProvider.origin == null) {
+          mapProvider.setOrigin(
+              LocationPlace(address: 'Mi ubicación', latlng: mapProvider.currentLocation!));
+        }
+        mapProvider.originController.dispose();
+        mapProvider.destinationController.dispose();
+      },
       onMapCreated: mapProvider.onMapCreated,
       // onCameraMove: (position) {
       //   mapProvider.updateCoords(position.target);

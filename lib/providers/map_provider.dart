@@ -69,15 +69,15 @@ class MapProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setOrigin(LocationPlace data) {
+  void setOrigin(LocationPlace? data) {
     _origin = data;
-    originController.text = data.address;
+    originController.text = data?.address ?? '';
     notifyListeners();
   }
 
-  void setDestination(LocationPlace data) {
+  void setDestination(LocationPlace? data) {
     _destination = data;
-    destinationController.text = data.address;
+    destinationController.text = data?.address ?? '';
     notifyListeners();
   }
 

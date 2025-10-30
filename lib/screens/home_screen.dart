@@ -183,7 +183,7 @@ class OriginDest extends StatelessWidget {
                         }
                       },
                       onCleared: () {
-                        mapProvider.setOrigin(LocationPlace.getEmpty());
+                        mapProvider.setOrigin(null);
                       },
                     ),
                   ),
@@ -201,7 +201,7 @@ class OriginDest extends StatelessWidget {
                         }
                       },
                       onCleared: () {
-                        mapProvider.setOrigin(LocationPlace.getEmpty());
+                        mapProvider.setOrigin(null);
                       },
                     ),
                   ),

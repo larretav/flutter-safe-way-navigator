@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
@@ -66,8 +65,7 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
     }
 
     final latlng = LatLng(
-        lat: mapProvider.currentLocation!.latitude,
-        lng: mapProvider.currentLocation!.longitude);
+        lat: mapProvider.currentLocation!.latitude, lng: mapProvider.currentLocation!.longitude);
 
     return FutureBuilder(
         future: _fetchSuggestions(widget.controller.text, latlng),
@@ -77,8 +75,7 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
               return _fetchSuggestions(value.text, latlng);
             },
             onSelected: (item) => _onSelected(item, latlng),
-            fieldViewBuilder:
-                (context, textEditingController, focusNode, onFieldSubmitted) {
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
               // Vincular el controller externo
               textEditingController.text = widget.controller.text;
 
@@ -92,8 +89,7 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
                   hintText: widget.hintText,
                   border: InputBorder.none,
                   isDense: true,
-                  suffixIconConstraints:
-                      const BoxConstraints(minWidth: 20, minHeight: 20),
+                  suffixIconConstraints: const BoxConstraints(minWidth: 20, minHeight: 20),
                   suffixIcon: widget.controller.text.isNotEmpty
                       ? IconButton(
                           iconSize: 16,
@@ -110,7 +106,7 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
             },
             optionsViewBuilder: (context, onSelected, options) {
               return Align(
-                alignment: Alignment.topLeft,
+                alignment: Alignment.topCenter,
                 child: Material(
                   elevation: 4,
                   borderRadius: BorderRadius.circular(12),
