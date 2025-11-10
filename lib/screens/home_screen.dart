@@ -20,17 +20,21 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         toolbarHeight: 48,
       ),
-      body: const Stack(
-        alignment: Alignment.center,
-        children: [
-          // 🔹 Mapa simulado (placeholder)
-          TheMap(),
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: const Stack(
+          alignment: Alignment.center,
+          children: [
+            // 🔹 Mapa simulado (placeholder)
+            TheMap(),
 
-          OriginDest(),
+            OriginDest(),
 
-          // 🔹 Parte inferior: comandos y botones
-          MapFooter(),
-        ],
+            // 🔹 Parte inferior: comandos y botones
+            MapFooter(),
+          ],
+        ),
       ),
     );
   }
@@ -201,7 +205,7 @@ class OriginDest extends StatelessWidget {
                         }
                       },
                       onCleared: () {
-                        mapProvider.setOrigin(null);
+                        mapProvider.setDestination(null);
                       },
                     ),
                   ),

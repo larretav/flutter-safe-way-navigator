@@ -34,19 +34,12 @@ class _TheMapState extends State<TheMap> {
     return GoogleMap(
       onTap: (latlng) {
         if (mapProvider.origin == null) {
+          FocusManager.instance.primaryFocus?.unfocus();
           mapProvider.setOrigin(
               LocationPlace(address: 'Mi ubicación', latlng: mapProvider.currentLocation!));
         }
-        mapProvider.originController.dispose();
-        mapProvider.destinationController.dispose();
       },
       onMapCreated: mapProvider.onMapCreated,
-      // onCameraMove: (position) {
-      //   mapProvider.updateCoords(position.target);
-      // },
-      // onCameraIdle: () {
-      //   mapProvider.updateLocation(mapProvider.selectedLocation);
-      // },
       initialCameraPosition: CameraPosition(
         target: mapProvider.currentLocation!,
         zoom: 14.0,

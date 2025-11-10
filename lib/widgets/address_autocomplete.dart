@@ -9,14 +9,15 @@ class AddressAutocomplete extends StatefulWidget {
   final TextEditingController controller;
   final Function(String, LatLng) onPlaceSelected;
   final VoidCallback? onCleared;
+  final bool isDisabled;
 
-  const AddressAutocomplete({
-    super.key,
-    required this.hintText,
-    required this.controller,
-    required this.onPlaceSelected,
-    this.onCleared,
-  });
+  const AddressAutocomplete(
+      {super.key,
+      required this.hintText,
+      required this.controller,
+      required this.onPlaceSelected,
+      this.onCleared,
+      this.isDisabled = false});
 
   @override
   State<AddressAutocomplete> createState() => _AddressAutocompleteState();
@@ -25,9 +26,25 @@ class AddressAutocomplete extends StatefulWidget {
 class _AddressAutocompleteState extends State<AddressAutocomplete> {
   final PlaceService _placeService = PlaceService();
   final FocusNode _focusNode = FocusNode();
+  bool _showOptions = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      setState(() {
+        _showOptions = false; // ocultar sugerencias
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     super.dispose();
   }
@@ -45,6 +62,7 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
       final loc = await _placeService.getPlaceLatLng(results.first.placeId);
       if (loc != null) {
         widget.onPlaceSelected(selected, loc);
+        _focusNode.unfocus();
       }
     }
     widget.controller.text = selected;
@@ -71,16 +89,19 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
         future: _fetchSuggestions(widget.controller.text, latlng),
         builder: (context, asyncSnapshot) {
           return Autocomplete<String>(
-            optionsBuilder: (TextEditingValue value) async {
+            optionsBuilder: (value) async {
               return _fetchSuggestions(value.text, latlng);
             },
-            onSelected: (item) => _onSelected(item, latlng),
+            onSelected: (item) {
+              _onSelected(item, latlng);
+            },
             fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
               // Vincular el controller externo
               textEditingController.text = widget.controller.text;
 
               return TextField(
                 controller: textEditingController,
+                enabled: !widget.isDisabled,
                 focusNode: focusNode,
                 onChanged: (value) => setState(() {
                   widget.controller.text = value;
@@ -119,7 +140,10 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
                         final option = options.elementAt(index);
                         return ListTile(
                           title: Text(option),
-                          onTap: () => onSelected(option),
+                          onTap: () {
+                            onSelected(option);
+                            _focusNode.unfocus();
+                          },
                         );
                       },
                     ),
