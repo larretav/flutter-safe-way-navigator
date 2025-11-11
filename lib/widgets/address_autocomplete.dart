@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/services/place_service.dart';
 
 class AddressAutocomplete extends StatefulWidget {
@@ -7,14 +9,15 @@ class AddressAutocomplete extends StatefulWidget {
   final TextEditingController controller;
   final Function(String, LatLng) onPlaceSelected;
   final VoidCallback? onCleared;
+  final bool isDisabled;
 
-  const AddressAutocomplete({
-    super.key,
-    required this.hintText,
-    required this.controller,
-    required this.onPlaceSelected,
-    this.onCleared,
-  });
+  const AddressAutocomplete(
+      {super.key,
+      required this.hintText,
+      required this.controller,
+      required this.onPlaceSelected,
+      this.onCleared,
+      this.isDisabled = false});
 
   @override
   State<AddressAutocomplete> createState() => _AddressAutocompleteState();
@@ -25,24 +28,30 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
   final FocusNode _focusNode = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _focusNode.dispose();
     super.dispose();
   }
 
-  Future<List<String>> _fetchSuggestions(String query) async {
+  Future<List<String>> _fetchSuggestions(String query, LatLng latlng) async {
     if (query.isEmpty || query.length < 3) return [];
-    final results = await _placeService.search(query);
+    final results = await _placeService.search(query, latlng);
     return results.map((p) => p.fullText).toList();
   }
 
-  void _onSelected(String selected) async {
+  void _onSelected(String selected, LatLng latlng) async {
     // Buscar el placeId correspondiente al texto
-    final results = await _placeService.search(selected);
+    final results = await _placeService.search(selected, latlng);
     if (results.isNotEmpty) {
       final loc = await _placeService.getPlaceLatLng(results.first.placeId);
       if (loc != null) {
         widget.onPlaceSelected(selected, loc);
+        _focusNode.unfocus();
       }
     }
     widget.controller.text = selected;
@@ -56,21 +65,32 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
 
   @override
   Widget build(BuildContext context) {
+    final mapProvider = Provider.of<MapProvider>(context, listen: false);
+
+    if (mapProvider.currentLocation == null) {
+      return Container();
+    }
+
+    final latlng = LatLng(
+        lat: mapProvider.currentLocation!.latitude, lng: mapProvider.currentLocation!.longitude);
+
     return FutureBuilder(
-        future: _fetchSuggestions(widget.controller.text),
+        future: _fetchSuggestions(widget.controller.text, latlng),
         builder: (context, asyncSnapshot) {
           return Autocomplete<String>(
-            optionsBuilder: (TextEditingValue value) async {
-              return _fetchSuggestions(value.text);
+            optionsBuilder: (value) async {
+              return _fetchSuggestions(value.text, latlng);
             },
-            onSelected: _onSelected,
-            fieldViewBuilder:
-                (context, textEditingController, focusNode, onFieldSubmitted) {
+            onSelected: (item) {
+              _onSelected(item, latlng);
+            },
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
               // Vincular el controller externo
               textEditingController.text = widget.controller.text;
 
               return TextField(
                 controller: textEditingController,
+                enabled: !widget.isDisabled,
                 focusNode: focusNode,
                 onChanged: (value) => setState(() {
                   widget.controller.text = value;
@@ -82,21 +102,21 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
                   suffixIconConstraints: const BoxConstraints(minWidth: 20, minHeight: 20),
                   suffixIcon: widget.controller.text.isNotEmpty
                       ? IconButton(
-                        iconSize: 16,
-                        icon: const Icon(Icons.clear),
-                        constraints: const BoxConstraints(),
-                        style: IconButton.styleFrom(
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        onPressed: _clearField,
-                      )
+                          iconSize: 16,
+                          icon: const Icon(Icons.clear),
+                          constraints: const BoxConstraints(),
+                          style: IconButton.styleFrom(
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: _clearField,
+                        )
                       : null,
                 ),
               );
             },
             optionsViewBuilder: (context, onSelected, options) {
               return Align(
-                alignment: Alignment.topLeft,
+                alignment: Alignment.topCenter,
                 child: Material(
                   elevation: 4,
                   borderRadius: BorderRadius.circular(12),
@@ -109,7 +129,10 @@ class _AddressAutocompleteState extends State<AddressAutocomplete> {
                         final option = options.elementAt(index);
                         return ListTile(
                           title: Text(option),
-                          onTap: () => onSelected(option),
+                          onTap: () {
+                            onSelected(option);
+                            _focusNode.unfocus();
+                          },
                         );
                       },
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
@@ -12,20 +13,28 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Rutas Seguras"),
+        title: const Text(
+          "Rutas Seguras",
+          style: TextStyle(fontSize: 18),
+        ),
         centerTitle: true,
+        toolbarHeight: 48,
       ),
-      body: const Stack(
-        alignment: Alignment.center,
-        children: [
-          // 🔹 Mapa simulado (placeholder)
-          TheMap(),
-          
-          OriginDest(),
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: const Stack(
+          alignment: Alignment.center,
+          children: [
+            // 🔹 Mapa simulado (placeholder)
+            TheMap(),
 
-          // 🔹 Parte inferior: comandos y botones
-          MapFooter(),
-        ],
+            OriginDest(),
+
+            // 🔹 Parte inferior: comandos y botones
+            MapFooter(),
+          ],
+        ),
       ),
     );
   }
@@ -122,8 +131,7 @@ class MapFooter extends StatelessWidget {
                   style: IconButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12))),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 ),
               ],
             ),
@@ -144,11 +152,12 @@ class OriginDest extends StatelessWidget {
     final mapProvider = Provider.of<MapProvider>(context);
 
     return Positioned(
-      top: 20,
-      left: 10,
-      right: 10,
+      top: 10,
+      left: 18,
+      right: 18,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(
+            left: 12, right: 4, bottom: 8, top: 8), //symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -170,12 +179,15 @@ class OriginDest extends StatelessWidget {
                     child: AddressAutocomplete(
                       hintText: "Origen",
                       controller: mapProvider.originController,
-                      onPlaceSelected: (address, coords) {
-                        mapProvider.setOrigin(
-                            LocationPlace(address: address, latlng: coords));
+                      onPlaceSelected: (address, latlng) {
+                        mapProvider.setOrigin(LocationPlace(
+                            address: address, latlng: LatLng(latlng.lat, latlng.lng)));
+                        if (mapProvider.origin != null && mapProvider.destination != null) {
+                          mapProvider.drawRoute();
+                        }
                       },
                       onCleared: () {
-                        mapProvider.setOrigin(LocationPlace.getEmpty());
+                        mapProvider.setOrigin(null);
                       },
                     ),
                   ),
@@ -185,22 +197,28 @@ class OriginDest extends StatelessWidget {
                     child: AddressAutocomplete(
                       hintText: "Destino",
                       controller: mapProvider.destinationController,
-                      onPlaceSelected: (address, location) {
-                        mapProvider.setDestination(
-                            LocationPlace(address: address, latlng: location));
+                      onPlaceSelected: (address, latlng) {
+                        mapProvider.setDestination(LocationPlace(
+                            address: address, latlng: LatLng(latlng.lat, latlng.lng)));
+                        if (mapProvider.origin != null && mapProvider.destination != null) {
+                          mapProvider.drawRoute();
+                        }
+                      },
+                      onCleared: () {
+                        mapProvider.setDestination(null);
                       },
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 8),
             IconButton(
               onPressed: () {
                 mapProvider.swapLocations();
               },
-              icon: const Icon(Icons.swap_vert, size: 28),
-              color: Colors.grey[500],
+              icon: const Icon(Icons.swap_vert, size: 24),
+              color: Colors.grey[600],
             ),
           ],
         ),

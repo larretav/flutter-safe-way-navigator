@@ -5,11 +5,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
+import 'package:safe_way_navigator/services/directions_service.dart';
 
 class MapProvider with ChangeNotifier {
   late GoogleMapController mapController;
   final TextEditingController originController = TextEditingController();
   final TextEditingController destinationController = TextEditingController();
+  Set<Polyline> _polylines = {};
 
   LatLng? _currentLocation;
   LatLng? _selectedLocation;
@@ -26,6 +28,7 @@ class MapProvider with ChangeNotifier {
 
   LocationPlace? get origin => _origin;
   LocationPlace? get destination => _destination;
+  Set<Polyline> get polylines => _polylines;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -66,15 +69,15 @@ class MapProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setOrigin(LocationPlace data) {
+  void setOrigin(LocationPlace? data) {
     _origin = data;
-    originController.text = data.address;
+    originController.text = data?.address ?? '';
     notifyListeners();
   }
 
-  void setDestination(LocationPlace data) {
+  void setDestination(LocationPlace? data) {
     _destination = data;
-    destinationController.text = data.address;
+    destinationController.text = data?.address ?? '';
     notifyListeners();
   }
 
@@ -126,12 +129,10 @@ class MapProvider with ChangeNotifier {
 
     // Obtener ubicación actual
     final position = await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high));
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
 
     _currentLocation = LatLng(position.latitude, position.longitude);
     notifyListeners();
-
 
     //Escucha cambios de posición
     const locationSettings = LocationSettings(
@@ -140,8 +141,7 @@ class MapProvider with ChangeNotifier {
     );
 
     _positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position pos) {
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position pos) {
       _currentLocation = LatLng(pos.latitude, pos.longitude);
 
       //Mueve la cámara si quieres seguimiento automático
@@ -150,9 +150,49 @@ class MapProvider with ChangeNotifier {
       );
 
       updateLocation(_currentLocation);
-      notifyListeners();
     });
 
+    setOrigin(LocationPlace(latlng: _currentLocation!, address: "Mi ubicación"));
+  }
+
+  Future<void> drawRoute() async {
+    if (_origin == null || _destination == null) return;
+
+    final points = await DirectionsService.getRoutePoints(_origin!.latlng, _destination!.latlng);
+
+    _polylines = {
+      Polyline(
+        polylineId: const PolylineId('route'),
+        color: Colors.blue,
+        width: 5,
+        points: points,
+      )
+    };
+
+    notifyListeners();
+
+    // Opcional: centrar la cámara en la ruta
+    final bounds = _getBounds(points);
+    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+  }
+
+  LatLngBounds _getBounds(List<LatLng> points) {
+    double? x0, x1, y0, y1;
+    for (final LatLng p in points) {
+      if (x0 == null || y0 == null) {
+        x0 = x1 = p.latitude;
+        y0 = y1 = p.longitude;
+      } else {
+        if (p.latitude > x1!) x1 = p.latitude;
+        if (p.latitude < x0) x0 = p.latitude;
+        if (p.longitude > y1!) y1 = p.longitude;
+        if (p.longitude < y0) y0 = p.longitude;
+      }
+    }
+    return LatLngBounds(
+      southwest: LatLng(x0!, y0!),
+      northeast: LatLng(x1!, y1!),
+    );
   }
 
   void moveToCurrentLocation() {
