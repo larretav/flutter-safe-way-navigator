@@ -26,25 +26,14 @@ class AddressAutocomplete extends StatefulWidget {
 class _AddressAutocompleteState extends State<AddressAutocomplete> {
   final PlaceService _placeService = PlaceService();
   final FocusNode _focusNode = FocusNode();
-  bool _showOptions = false;
 
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() {
-    if (!_focusNode.hasFocus) {
-      setState(() {
-        _showOptions = false; // ocultar sugerencias
-      });
-    }
   }
 
   @override
   void dispose() {
-    _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     super.dispose();
   }
