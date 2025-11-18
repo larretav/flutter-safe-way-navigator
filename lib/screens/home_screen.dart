@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
+import 'package:safe_way_navigator/widgets/listening_overlay.dart';
 import 'package:safe_way_navigator/widgets/map.dart';
+import 'package:safe_way_navigator/widgets/voice_mic_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -33,6 +35,8 @@ class HomeScreen extends StatelessWidget {
 
             // 🔹 Parte inferior: comandos y botones
             MapFooter(),
+
+            ListeningOverlay()
           ],
         ),
       ),
@@ -125,14 +129,7 @@ class MapFooter extends StatelessWidget {
                 const SizedBox(width: 12),
 
                 // Botón Voz
-                IconButton.filled(
-                  onPressed: () {},
-                  icon: const Icon(Icons.mic),
-                  style: IconButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                ),
+                const VoiceMicButton(),
               ],
             ),
           ],
