@@ -49,5 +49,7 @@
 	<array>
   	<string>location</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceder al micrófono para comandos de voz.</string>
 </dict>
 </plist>

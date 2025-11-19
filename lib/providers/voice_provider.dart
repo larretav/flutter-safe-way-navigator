@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:record/record.dart';
+import '../services/whisper_service.dart';
 
 class VoiceProvider extends ChangeNotifier {
+  final _recorder = AudioRecorder();
+
   bool _isListening = false;
   bool _isProcessing = false;
 
@@ -8,15 +13,37 @@ class VoiceProvider extends ChangeNotifier {
   bool get isProcessing => _isProcessing;
 
   /// Cuando el usuario presiona el botón de micrófono
-  void startListening() {
+  void startListening() async {
     if (_isProcessing) return; // evita conflicto
-    _isListening = true;
-    notifyListeners();
+    // Pedir permisos
+    if (await _recorder.hasPermission()) {
+      _isListening = true;
+      notifyListeners();
+
+      await _recorder.start(const RecordConfig(), path: 'aFullPath/myFile.m4a');
+    }
   }
 
   /// Cuando el usuario deja de hablar o cancela
-  void stopListening() {
+  void stopListening() async {
     _isListening = false;
+    _isProcessing = true;
+    notifyListeners();
+
+    final path = await _recorder.stop();
+
+    if (path != null) {
+      final file = File(path);
+
+      // Enviar audio a Whisper
+      final text = await WhisperService.transcribe(file);
+
+      debugPrint("Texto recibido de Whisper: $text");
+
+      // Aquí luego enviaremos el texto a ChatGPT
+    }
+
+    _isProcessing = false;
     notifyListeners();
   }
 
