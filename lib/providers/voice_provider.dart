@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:record/record.dart';
 import '../services/whisper_service.dart';
@@ -12,6 +13,13 @@ class VoiceProvider extends ChangeNotifier {
   bool get isListening => _isListening;
   bool get isProcessing => _isProcessing;
 
+  /// Obtiene un archivo temporal para guardar la grabación
+  Future<String> _getTempFilePath() async {
+    final dir = await getTemporaryDirectory();
+    final filePath = "${dir.path}/voice_command_${DateTime.now().millisecondsSinceEpoch}.wav";
+    return filePath;
+  }
+
   /// Cuando el usuario presiona el botón de micrófono
   void startListening() async {
     if (_isProcessing) return; // evita conflicto
@@ -20,7 +28,13 @@ class VoiceProvider extends ChangeNotifier {
       _isListening = true;
       notifyListeners();
 
-      await _recorder.start(const RecordConfig(), path: 'aFullPath/myFile.m4a');
+      final path = await _getTempFilePath();
+
+      try {
+        await _recorder.start(const RecordConfig(encoder: AudioEncoder.wav), path: path);
+      } catch (e) {
+        print("Error al guardar archivo de audio: " + e.toString());
+      }
     }
   }
 
@@ -33,14 +47,17 @@ class VoiceProvider extends ChangeNotifier {
     final path = await _recorder.stop();
 
     if (path != null) {
-      final file = File(path);
+      try {
+        final file = File(path);
 
-      // Enviar audio a Whisper
-      final text = await WhisperService.transcribe(file);
+        // Enviar audio a Whisper
+        final text = await WhisperService.transcribe(file);
 
-      debugPrint("Texto recibido de Whisper: $text");
-
-      // Aquí luego enviaremos el texto a ChatGPT
+        debugPrint("Texto recibido de Whisper: $text");
+        // Aquí luego enviaremos el texto a ChatGPT
+      } catch (e) {
+        print("Error al transcribir audio: " + e.toString());
+      }
     }
 
     _isProcessing = false;

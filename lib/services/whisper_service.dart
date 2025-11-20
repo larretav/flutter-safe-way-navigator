@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class WhisperService {
-  static const String apiKey = "TU_API_KEY_DE_OPENAI";
+  static final String apiKey = dotenv.env['OPENIA_API_KEY'] ?? "";
 
   static Future<String?> transcribe(File audioFile) async {
     final url = Uri.parse("https://api.openai.com/v1/audio/transcriptions");
