@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:record/record.dart';
+import 'package:safe_way_navigator/services/chatgpt_service.dart';
 import '../services/whisper_service.dart';
 
 class VoiceProvider extends ChangeNotifier {
@@ -54,7 +55,14 @@ class VoiceProvider extends ChangeNotifier {
         final text = await WhisperService.transcribe(file);
 
         debugPrint("Texto recibido de Whisper: $text");
-        // Aquí luego enviaremos el texto a ChatGPT
+        if (text != null && text.trim().isNotEmpty) {
+          final result = await ChatGPTService.interpretCommand(text);
+          debugPrint("Interpretación: $result");
+
+          // TODO: mandar este JSON al MapProvider
+
+          // o abrir la pantalla de reporte
+        }
       } catch (e) {
         print("Error al transcribir audio: " + e.toString());
       }
