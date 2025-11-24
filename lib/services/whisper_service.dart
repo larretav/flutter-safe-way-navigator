@@ -24,10 +24,8 @@ class WhisperService {
 
     if (response.statusCode == 200) {
       final jsonRes = jsonDecode(body);
-      print("Resp: $jsonRes");
       return jsonRes["text"];
     } else {
-      print("Error en Whisper: $body");
       return null;
     }
   }

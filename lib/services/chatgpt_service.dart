@@ -2,6 +2,20 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+class Test {
+  String action;
+  String incidentType;
+  String locationDescription;
+  String severity;
+
+  Test({
+    required this.action,
+    required this.incidentType,
+    required this.locationDescription,
+    required this.severity,
+  });
+}
+
 class ChatGPTService {
   static final String apiKey = dotenv.env['OPENIA_API_KEY'] ?? "";
 

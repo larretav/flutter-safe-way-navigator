@@ -54,10 +54,8 @@ class VoiceProvider extends ChangeNotifier {
         // Enviar audio a Whisper
         final text = await WhisperService.transcribe(file);
 
-        debugPrint("Texto recibido de Whisper: $text");
         if (text != null && text.trim().isNotEmpty) {
           final result = await ChatGPTService.interpretCommand(text);
-          debugPrint("Interpretación: $result");
 
           // TODO: mandar este JSON al MapProvider
 

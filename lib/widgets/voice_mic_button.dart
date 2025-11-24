@@ -25,7 +25,7 @@ class VoiceMicButton extends StatelessWidget {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: size,
+            width: size * 1.5,
             height: size,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
