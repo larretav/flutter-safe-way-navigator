@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:record/record.dart';
+import 'package:safe_way_navigator/models/gpt_resp_model.dart';
 import 'package:safe_way_navigator/services/chatgpt_service.dart';
 import '../services/whisper_service.dart';
 
@@ -57,7 +58,20 @@ class VoiceProvider extends ChangeNotifier {
         if (text != null && text.trim().isNotEmpty) {
           final result = await ChatGPTService.interpretCommand(text);
 
-          // TODO: mandar este JSON al MapProvider
+          if (result == null) return;
+          switch (result) {
+            case NavigateGPTRespModel nav:
+              print("Ir desde ${nav.origin} a ${nav.destination}");
+              break;
+
+            case ReportGPTRespModel incident:
+              print("Incidente: ${incident.incidentType}");
+              break;
+
+            case UnknownGPTRespModel _:
+              print("Acción desconocida");
+              break;
+          }
 
           // o abrir la pantalla de reporte
         }

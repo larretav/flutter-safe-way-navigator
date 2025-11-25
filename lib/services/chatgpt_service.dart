@@ -1,25 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-class Test {
-  String action;
-  String incidentType;
-  String locationDescription;
-  String severity;
-
-  Test({
-    required this.action,
-    required this.incidentType,
-    required this.locationDescription,
-    required this.severity,
-  });
-}
+import 'package:safe_way_navigator/models/gpt_resp_model.dart';
 
 class ChatGPTService {
   static final String apiKey = dotenv.env['OPENIA_API_KEY'] ?? "";
 
-  static Future<Map<String, dynamic>?> interpretCommand(String text) async {
+  static Future<GPTRespModel?> interpretCommand(String text) async {
     final url = Uri.parse("https://api.openai.com/v1/chat/completions");
 
     final systemPrompt = """
@@ -89,7 +76,8 @@ IMPORTANTE:
       final content = jsonRes["choices"][0]["message"]["content"];
 
       // Convertir a JSON real
-      return jsonDecode(content);
+      final jsonData = GPTRespModel.fromJson(jsonDecode(content));
+      return jsonData;
     }
 
     print("Error interpretando comando: ${response.body}");
