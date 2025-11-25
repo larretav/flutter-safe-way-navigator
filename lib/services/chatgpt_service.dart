@@ -39,7 +39,7 @@ Debes devolver:
 {
   "action": "report_incident",
   "incidentType": "accident|traffic|flood|construction|other",
-  "locationDescription": "<texto>",
+  "locationDescription": "<texto_o_current_location>",
   "severity": "mild|moderate|severe"
 }
 

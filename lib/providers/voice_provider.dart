@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:record/record.dart';
 import 'package:safe_way_navigator/models/gpt_resp_model.dart';
 import 'package:safe_way_navigator/services/chatgpt_service.dart';
+import 'package:safe_way_navigator/services/place_service.dart';
 import '../services/whisper_service.dart';
 
 class VoiceProvider extends ChangeNotifier {
@@ -41,7 +43,7 @@ class VoiceProvider extends ChangeNotifier {
   }
 
   /// Cuando el usuario deja de hablar o cancela
-  void stopListening() async {
+  Future<GPTRespModel?> stopListening() async {
     _isListening = false;
     _isProcessing = true;
     notifyListeners();
@@ -56,24 +58,21 @@ class VoiceProvider extends ChangeNotifier {
         final text = await WhisperService.transcribe(file);
 
         if (text != null && text.trim().isNotEmpty) {
-          final result = await ChatGPTService.interpretCommand(text);
+          return await ChatGPTService.interpretCommand(text);
 
-          if (result == null) return;
-          switch (result) {
-            case NavigateGPTRespModel nav:
-              print("Ir desde ${nav.origin} a ${nav.destination}");
-              break;
+          // if (result == null) return null;
 
-            case ReportGPTRespModel incident:
-              print("Incidente: ${incident.incidentType}");
-              break;
+          // if (result is NavigateGPTRespModel) {
+          //   _navigateOption(result);
+          // }
 
-            case UnknownGPTRespModel _:
-              print("Acción desconocida");
-              break;
-          }
+          // if (result is ReportGPTRespModel) {
+          //   _reportOption(result);
+          // }
 
-          // o abrir la pantalla de reporte
+          // if (result is UnknownGPTRespModel) {
+          //   print("No me entendio GPT");
+          // }
         }
       } catch (e) {
         print("Error al transcribir audio: " + e.toString());
