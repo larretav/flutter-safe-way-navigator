@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/gpt_resp_model.dart';
+import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/services/place_service.dart';
 import '../providers/voice_provider.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart' as places;
 
 class VoiceMicButton extends StatelessWidget {
   final double size;
@@ -20,11 +22,27 @@ class VoiceMicButton extends StatelessWidget {
         final isProcessing = voice.isProcessing;
 
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
             if (isProcessing || mapProvider.currentLocation == null) return;
 
             if (isListening) {
-              final result = voice.stopListening();
+              final result = await voice.stopListening();
+              if (result == null || !context.mounted) {
+                if (context.mounted) _showSnackBar("Algo salió mal", context);
+                return;
+              }
+
+              switch (result) {
+                case NavigateGPTRespModel nav:
+                  _navigateOption(nav, context);
+                  break;
+                case ReportGPTRespModel rep:
+                  _reportOption(rep, context);
+                  break;
+                case UnknownGPTRespModel unk:
+                  _unknownOption(unk, context);
+                  break;
+              }
             } else {
               voice.startListening();
             }
@@ -69,19 +87,73 @@ class VoiceMicButton extends StatelessWidget {
   void _navigateOption(NavigateGPTRespModel nav, BuildContext context) async {
     final mapProvider = context.read<MapProvider>();
     final PlaceService placeService = PlaceService();
+    final latlng = mapProvider.currentLocation;
+    final placesCurrentLoc = places.LatLng(
+        lat: mapProvider.currentLocation!.latitude, lng: mapProvider.currentLocation!.longitude);
 
-    final results = await placeService.search(
-        nav.origin,
-        LatLng(
-            lat: mapProvider.currentLocation!.latitude,
-            lng: mapProvider.currentLocation!.longitude));
+    if (latlng == null || mapProvider.origin == null) return;
 
-    if (results.isNotEmpty) {
-      final loc = await placeService.getPlaceLatLng(results.first.placeId);
+    LocationPlace originPlace = mapProvider.origin!;
+
+    // Establecer origen
+    if (nav.origin == "current_location") {
+      originPlace = LocationPlace(
+          address: originPlace.address, latlng: gmaps.LatLng(latlng.latitude, latlng.longitude));
+    } else {
+      final results = await placeService.search(nav.origin, placesCurrentLoc);
+
+      if (results.isEmpty && context.mounted) {
+        _showSnackBar("Algo salió mal al buscar el origen", context);
+        return;
+      }
+
+      final firstResult = results.first;
+      final loc = await placeService.getPlaceLatLng(firstResult.placeId);
+      if (loc == null && context.mounted) {
+        _showSnackBar("Algo salió mal al obtener el lugar de origen", context);
+        return;
+      }
+
+      originPlace =
+          LocationPlace(address: firstResult.fullText, latlng: gmaps.LatLng(loc!.lat, loc.lng));
+    }
+
+    // Establecer destino
+    final destResults = await placeService.search(nav.destination, placesCurrentLoc);
+
+    if (destResults.isEmpty && context.mounted) {
+      _showSnackBar("Algo salió mal al buscar el destino", context);
+      return;
+    }
+
+    final firstResult = destResults.first;
+    final loc = await placeService.getPlaceLatLng(firstResult.placeId);
+
+    if (loc == null && context.mounted) {
+      _showSnackBar("Algo salió mal al obtener el lugar de origen", context);
+      return;
+    }
+
+    mapProvider.setOrigin(LocationPlace(
+        address: originPlace.address, latlng: gmaps.LatLng(latlng.latitude, latlng.longitude)));
+
+    mapProvider.setDestination(LocationPlace(
+        address: destResults.first.fullText, latlng: gmaps.LatLng(loc!.lat, loc.lng)));
+
+    if (mapProvider.origin != null && mapProvider.destination != null) {
+      mapProvider.drawRoute();
     }
   }
 
-  void _reportOption(ReportGPTRespModel report) {
+  void _reportOption(ReportGPTRespModel report, BuildContext context) {
     print("Incidente: ${report.incidentType}");
+  }
+
+  void _unknownOption(UnknownGPTRespModel unk, BuildContext context) {
+    print("Desconocido: ${unk.action}");
+  }
+
+  void _showSnackBar(String message, BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

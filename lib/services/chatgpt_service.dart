@@ -25,7 +25,7 @@ Ejemplos:
 Debes devolver:
 {
   "action": "navigate",
-  "origin": "<texto_o_current_location>",
+  "origin": "<texto> o <current_location>",
   "destination": "<texto>"
 }
 
@@ -39,7 +39,7 @@ Debes devolver:
 {
   "action": "report_incident",
   "incidentType": "accident|traffic|flood|construction|other",
-  "locationDescription": "<texto_o_current_location>",
+  "locationDescription": "<texto> o <current_location>",
   "severity": "mild|moderate|severe"
 }
 

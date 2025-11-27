@@ -58,21 +58,9 @@ class VoiceProvider extends ChangeNotifier {
         final text = await WhisperService.transcribe(file);
 
         if (text != null && text.trim().isNotEmpty) {
+          _isProcessing = false;
+          notifyListeners();
           return await ChatGPTService.interpretCommand(text);
-
-          // if (result == null) return null;
-
-          // if (result is NavigateGPTRespModel) {
-          //   _navigateOption(result);
-          // }
-
-          // if (result is ReportGPTRespModel) {
-          //   _reportOption(result);
-          // }
-
-          // if (result is UnknownGPTRespModel) {
-          //   print("No me entendio GPT");
-          // }
         }
       } catch (e) {
         print("Error al transcribir audio: " + e.toString());
@@ -81,6 +69,7 @@ class VoiceProvider extends ChangeNotifier {
 
     _isProcessing = false;
     notifyListeners();
+    return null;
   }
 
   /// Cuando estamos procesando el audio (Whisper después)
