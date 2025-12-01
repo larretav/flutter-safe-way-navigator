@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:safe_way_navigator/models/incident_model.dart';
 
-
 enum ReportSeverity { mild, moderate, severe }
 
 typedef MenuEntry = DropdownMenuEntry<String>;
@@ -15,12 +14,10 @@ const List<String> incidentTypes = [
   "Bache"
 ];
 
-
 class IncidentProvider with ChangeNotifier {
-
   String incidentType = incidentTypes.first;
   String location = "Blvd. Francisco Agraz, Tepeca, 81248 Los Mochis, Sin.";
-  
+
   ReportSeverity severity = ReportSeverity.mild;
   final TextEditingController descriptionController = TextEditingController();
 

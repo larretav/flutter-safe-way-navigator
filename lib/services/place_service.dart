@@ -25,6 +25,7 @@ class PlaceService {
           southwest: southwest,
           northeast: northeast,
         ));
+
     return result.predictions;
   }
 

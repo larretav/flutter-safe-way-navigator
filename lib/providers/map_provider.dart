@@ -156,7 +156,10 @@ class MapProvider with ChangeNotifier {
   }
 
   Future<void> drawRoute() async {
-    if (_origin == null || _destination == null) return;
+    if (_origin == null || _destination == null) {
+      _polylines.clear();
+      return;
+    }
 
     final points = await DirectionsService.getRoutePoints(_origin!.latlng, _destination!.latlng);
 
@@ -171,7 +174,7 @@ class MapProvider with ChangeNotifier {
 
     notifyListeners();
 
-    // Opcional: centrar la cámara en la ruta
+    // Para centrar
     final bounds = _getBounds(points);
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }

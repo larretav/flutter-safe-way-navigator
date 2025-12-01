@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/models/location_model.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
+import 'package:safe_way_navigator/providers/voice_provider.dart';
 import 'package:safe_way_navigator/widgets/address_autocomplete.dart';
 import 'package:safe_way_navigator/widgets/listening_overlay.dart';
 import 'package:safe_way_navigator/widgets/map.dart';
@@ -13,6 +14,12 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<VoiceProvider>().initWakeWord(() {
+        context.read<VoiceProvider>().startListening();
+      });
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
