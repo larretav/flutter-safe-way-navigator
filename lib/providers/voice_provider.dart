@@ -33,28 +33,26 @@ class VoiceProvider extends ChangeNotifier {
   // Inicializar WakeWord
   Future<void> initWakeWord(VoidCallback onWakeWord) async {
     try {
-      print("Iniciando wake word $_porcupineApiKey");
-      final ppnPath = await copyAssetToFile("assets/holamapa_es_android_v3_0_0.ppn");
-      print(ppnPath);
+      print("Porcupine: Iniciando wake word...");
+
       _porcupine = await PorcupineManager.fromKeywordPaths(
-        _porcupineApiKey,
-        [
-          // BuiltInKeyword.PORCUPINE, BuiltInKeyword.OK_GOOGLE
-          ppnPath,
-        ],
-        (int keywordIndex) => onWakeWord(),
-      );
+          _porcupineApiKey,
+          [
+            "assets/holamapa_es_android_v3_0_0.ppn",
+          ],
+          (int keywordIndex) => onWakeWord(),
+          modelPath: "assets/porcupine_params_es.pv");
 
       await _porcupine!.start();
-      debugPrint("Wake word listening...");
+      debugPrint("Porcupine: listening...");
     } on PorcupineException catch (e) {
-      debugPrint("Error al inicializar wake word: $e");
+      debugPrint("Porcupine: Error al inicializar wake word: $e");
     }
   }
 
   /// Cuando el usuario presiona el botón de micrófono
   void startListening() async {
-    if (_isProcessing) return; // evita conflicto
+    if (_isProcessing) return;
     // Pedir permisos
     if (await _recorder.hasPermission()) {
       _isListening = true;
@@ -63,7 +61,15 @@ class VoiceProvider extends ChangeNotifier {
       final path = await _getTempFilePath();
 
       try {
-        await _recorder.start(const RecordConfig(encoder: AudioEncoder.wav), path: path);
+        await _recorder.start(
+            const RecordConfig(
+              encoder: AudioEncoder.wav,
+            ),
+            path: path);
+
+        Future.delayed(const Duration(seconds: 5), () async {
+          if (await _recorder.isRecording()) await stopListening();
+        });
       } catch (e) {
         print("Error al guardar archivo de audio: " + e.toString());
       }
@@ -115,13 +121,5 @@ class VoiceProvider extends ChangeNotifier {
   Future<void> disposeWakeWord() async {
     await _porcupine?.stop();
     await _porcupine?.delete();
-  }
-
-  Future<String> copyAssetToFile(String assetPath) async {
-    final byteData = await rootBundle.load(assetPath);
-    final file =
-        File('${(await getApplicationDocumentsDirectory()).path}/${assetPath.split('/').last}');
-    await file.writeAsBytes(byteData.buffer.asUint8List());
-    return file.path;
   }
 }

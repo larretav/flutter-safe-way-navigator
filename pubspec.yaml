@@ -73,6 +73,7 @@ flutter:
   assets:
     - .env
     - assets/holamapa_es_android_v3_0_0.ppn
+    - assets/porcupine_params_es.pv
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
