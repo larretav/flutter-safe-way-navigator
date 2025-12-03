@@ -38,7 +38,7 @@ class VoiceProvider extends ChangeNotifier {
       _porcupine = await PorcupineManager.fromKeywordPaths(
           _porcupineApiKey,
           [
-            "assets/holamapa_es_android_v3_0_0.ppn",
+            "assets/hola-mapa_es_android_v3_0_0.ppn",
           ],
           (int keywordIndex) => onWakeWord(),
           modelPath: "assets/porcupine_params_es.pv");
@@ -68,7 +68,10 @@ class VoiceProvider extends ChangeNotifier {
             path: path);
 
         Future.delayed(const Duration(seconds: 5), () async {
-          if (await _recorder.isRecording()) await stopListening();
+          if (await _recorder.isRecording()) {
+            _isListening = false;
+            notifyListeners();
+          }
         });
       } catch (e) {
         print("Error al guardar archivo de audio: " + e.toString());
