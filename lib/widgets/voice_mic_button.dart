@@ -17,11 +17,13 @@ class VoiceMicButton extends StatelessWidget {
     final mapProvider = Provider.of<MapProvider>(context);
     final voiceProvider = Provider.of<VoiceProvider>(context);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<VoiceProvider>().initWakeWord(() {
-        _handleTap(context, context.read<VoiceProvider>(), context.read<MapProvider>());
+    if (!voiceProvider.isWakeWordInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<VoiceProvider>().initWakeWord(() {
+          _handleTap(context, context.read<VoiceProvider>(), context.read<MapProvider>());
+        });
       });
-    });
+    }
 
     return GestureDetector(
       onTap: () => _handleTap(context, voiceProvider, mapProvider),
@@ -58,49 +60,6 @@ class VoiceMicButton extends StatelessWidget {
         ),
       ),
     );
-
-    // return Consumer<VoiceProvider>(
-    //   builder: (context, voice, child) {
-    //     final isListening = voice.isListening;
-    //     final isProcessing = voice.isProcessing;
-
-    //     return GestureDetector(
-    //       onTap: () => _handleTap(context, voice, mapProvider),
-    //       child: AnimatedContainer(
-    //         duration: const Duration(milliseconds: 200),
-    //         width: size * 1.5,
-    //         height: size,
-    //         decoration: BoxDecoration(
-    //           shape: BoxShape.rectangle,
-    //           borderRadius: BorderRadius.circular(12),
-    //           color: isProcessing
-    //               ? Colors.orange
-    //               : isListening
-    //                   ? Colors.red
-    //                   : Colors.blue,
-    //           boxShadow: isListening
-    //               ? [
-    //                   BoxShadow(
-    //                     color: Colors.red.withValues(alpha: 0.3),
-    //                     blurRadius: 20,
-    //                     spreadRadius: 5,
-    //                   )
-    //                 ]
-    //               : [],
-    //         ),
-    //         child: Icon(
-    //           isProcessing
-    //               ? Icons.hourglass_top
-    //               : isListening
-    //                   ? Icons.mic
-    //                   : Icons.mic_none,
-    //           size: 24,
-    //           color: Colors.white,
-    //         ),
-    //       ),
-    //     );
-    //   },
-    // );
   }
 
   void _navigateOption(NavigateGPTRespModel nav, BuildContext context) async {
@@ -177,9 +136,14 @@ class VoiceMicButton extends StatelessWidget {
   }
 
   _handleTap(BuildContext context, VoiceProvider voice, MapProvider mapProvider) async {
+    print("handleTap: $voice");
+    print("handleTap: $mapProvider");
     final isListening = voice.isListening;
     final isProcessing = voice.isProcessing;
     if (isProcessing || mapProvider.currentLocation == null) return;
+
+    print("handleTap-isListening: $isListening");
+    print("handleTap-isProcessing: $isProcessing");
 
     if (isListening) {
       final result = await voice.stopListening();

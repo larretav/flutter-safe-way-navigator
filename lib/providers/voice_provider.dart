@@ -17,9 +17,11 @@ class VoiceProvider extends ChangeNotifier {
 
   bool _isListening = false;
   bool _isProcessing = false;
+  bool _isWakeWordInitialized = false;
 
   bool get isListening => _isListening;
   bool get isProcessing => _isProcessing;
+  bool get isWakeWordInitialized => _isWakeWordInitialized;
 
   final String _porcupineApiKey = dotenv.env['PORCUPINE_API_KEY'] ?? "";
 
@@ -32,6 +34,7 @@ class VoiceProvider extends ChangeNotifier {
 
   // Inicializar WakeWord
   Future<void> initWakeWord(VoidCallback onWakeWord) async {
+    if (_isWakeWordInitialized) return;
     try {
       print("Porcupine: Iniciando wake word...");
 
@@ -43,6 +46,8 @@ class VoiceProvider extends ChangeNotifier {
           (int keywordIndex) => onWakeWord(),
           modelPath: "assets/porcupine_params_es.pv");
 
+      _isWakeWordInitialized = true;
+      notifyListeners();
       await _porcupine!.start();
       debugPrint("Porcupine: listening...");
     } on PorcupineException catch (e) {
@@ -53,6 +58,9 @@ class VoiceProvider extends ChangeNotifier {
   /// Cuando el usuario presiona el botón de micrófono
   void startListening() async {
     if (_isProcessing) return;
+
+    await _porcupine?.stop();
+
     // Pedir permisos
     if (await _recorder.hasPermission()) {
       _isListening = true;
@@ -96,6 +104,7 @@ class VoiceProvider extends ChangeNotifier {
 
         if (text != null && text.trim().isNotEmpty) {
           _isProcessing = false;
+          await _porcupine?.start();
           notifyListeners();
           return await ChatGPTService.interpretCommand(text);
         }
