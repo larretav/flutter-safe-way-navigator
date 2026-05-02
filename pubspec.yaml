@@ -39,17 +39,20 @@ dependencies:
   google_maps_flutter: ^2.13.1
   widgets_easier: ^0.0.10
   geocoding: ^4.0.0
-  flutter_google_places_sdk: ^0.4.2+1
   geolocator: ^14.0.2
   flutter_dotenv: ^6.0.0
   http: ^1.5.0
   record: ^6.1.2
   path_provider: ^2.1.5
   porcupine_flutter: ^3.0.6
+  flutter_google_places_sdk: ^0.4.2+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+dependency_overrides:
+  flutter_google_places_sdk_android: 0.2.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -164,6 +164,7 @@ class VoiceMicButton extends StatelessWidget {
           break;
       }
     } else {
+      print("Inicianto el listening we");
       voice.startListening();
     }
   }

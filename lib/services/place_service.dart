@@ -10,7 +10,7 @@ class PlaceService {
     if (query.isEmpty) return [];
 
     // Agregamos un limite de 50km a la busqueda
-    const double km = 50;
+    const double km = 30;
 
     final latDelta = kmToDegLat(km);
     final lngDelta = kmToDegLng(km, latlng.lat);
