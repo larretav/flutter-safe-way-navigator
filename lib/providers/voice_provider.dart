@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,6 +10,7 @@ import '../services/whisper_service.dart';
 
 import 'package:porcupine_flutter/porcupine_manager.dart';
 import 'package:porcupine_flutter/porcupine_error.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class VoiceProvider extends ChangeNotifier {
   PorcupineManager? _porcupine;
@@ -54,6 +53,36 @@ class VoiceProvider extends ChangeNotifier {
       debugPrint("Porcupine: listening...");
     } on PorcupineException catch (e) {
       debugPrint("Porcupine: Error al inicializar wake word: $e");
+    }
+  }
+
+  // Iniciar grabacion, esperar y procesar
+  Future<GPTRespModel?> recordAndProcess(LatLng? currentLocation) async {
+    if (currentLocation == null) return null;
+    await _porcupine?.stop();
+
+    // Pedir permisos
+    if (await _recorder.hasPermission()) {
+      _isListening = true;
+      notifyListeners();
+
+      final path = await _getTempFilePath();
+
+      await _recorder.start(
+          const RecordConfig(
+            encoder: AudioEncoder.wav,
+          ),
+          path: path);
+
+      return await Future.delayed(const Duration(seconds: 5), () async {
+        if (await _recorder.isRecording()) {
+          return await stopListening();
+        } else {
+          return null;
+        }
+      });
+    } else {
+      return null;
     }
   }
 

@@ -136,36 +136,54 @@ class VoiceMicButton extends StatelessWidget {
   }
 
   _handleTap(BuildContext context, VoiceProvider voice, MapProvider mapProvider) async {
-    print("handleTap: $voice");
-    print("handleTap: $mapProvider");
-    final isListening = voice.isListening;
-    final isProcessing = voice.isProcessing;
-    if (isProcessing || mapProvider.currentLocation == null) return;
-
-    print("handleTap-isListening: $isListening");
-    print("handleTap-isProcessing: $isProcessing");
-
-    if (isListening) {
-      final result = await voice.stopListening();
-      if (result == null || !context.mounted) {
-        if (context.mounted) _showSnackBar("Algo salió mal", context);
-        return;
-      }
-
-      switch (result) {
-        case NavigateGPTRespModel nav:
-          _navigateOption(nav, context);
-          break;
-        case ReportGPTRespModel rep:
-          _reportOption(rep, context);
-          break;
-        case UnknownGPTRespModel unk:
-          _unknownOption(unk, context);
-          break;
-      }
-    } else {
-      print("Inicianto el listening we");
-      voice.startListening();
+    final result = await voice.recordAndProcess(mapProvider.currentLocation);
+    if (result == null || !context.mounted) {
+      if (context.mounted) _showSnackBar("Algo salió mal", context);
+      return;
     }
+
+    switch (result) {
+      case NavigateGPTRespModel nav:
+        _navigateOption(nav, context);
+        break;
+      case ReportGPTRespModel rep:
+        _reportOption(rep, context);
+        break;
+      case UnknownGPTRespModel unk:
+        _unknownOption(unk, context);
+        break;
+    }
+
+    // print("handleTap: $voice");
+    // print("handleTap: $mapProvider");
+    // final isListening = voice.isListening;
+    // final isProcessing = voice.isProcessing;
+    // if (isProcessing || mapProvider.currentLocation == null) return;
+
+    // print("handleTap-isListening: $isListening");
+    // print("handleTap-isProcessing: $isProcessing");
+
+    // if (isListening) {
+    //   final result = await voice.stopListening();
+    //   if (result == null || !context.mounted) {
+    //     if (context.mounted) _showSnackBar("Algo salió mal", context);
+    //     return;
+    //   }
+
+    //   switch (result) {
+    //     case NavigateGPTRespModel nav:
+    //       _navigateOption(nav, context);
+    //       break;
+    //     case ReportGPTRespModel rep:
+    //       _reportOption(rep, context);
+    //       break;
+    //     case UnknownGPTRespModel unk:
+    //       _unknownOption(unk, context);
+    //       break;
+    //   }
+    // } else {
+    //   print("Inicianto el listening we");
+    //   voice.startListening();
+    // }
   }
 }
