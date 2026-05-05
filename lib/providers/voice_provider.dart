@@ -86,39 +86,6 @@ class VoiceProvider extends ChangeNotifier {
     }
   }
 
-  /// Cuando el usuario presiona el botón de micrófono
-  void startListening() async {
-    if (_isProcessing) return;
-
-    await _porcupine?.stop();
-
-    // Pedir permisos
-    if (await _recorder.hasPermission()) {
-      _isListening = true;
-      notifyListeners();
-
-      final path = await _getTempFilePath();
-
-      try {
-        await _recorder.start(
-            const RecordConfig(
-              encoder: AudioEncoder.wav,
-            ),
-            path: path);
-
-        Future.delayed(const Duration(seconds: 5), () async {
-          if (await _recorder.isRecording()) {
-            _isListening = false;
-            notifyListeners();
-          }
-        });
-      } catch (e) {
-        print("Error al guardar archivo de audio: " + e.toString());
-      }
-    }
-  }
-
-  /// Cuando el usuario deja de hablar o cancela
   Future<GPTRespModel?> stopListening() async {
     _isListening = false;
     _isProcessing = true;

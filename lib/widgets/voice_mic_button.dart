@@ -124,11 +124,11 @@ class VoiceMicButton extends StatelessWidget {
   }
 
   void _reportOption(ReportGPTRespModel report, BuildContext context) {
-    print("Incidente: ${report.incidentType}");
+    Navigator.pushNamed(context, '/report', arguments: report);
   }
 
   void _unknownOption(UnknownGPTRespModel unk, BuildContext context) {
-    print("Desconocido: ${unk.action}");
+    print("Desconocido: ${unk}");
   }
 
   void _showSnackBar(String message, BuildContext context) {
@@ -142,48 +142,16 @@ class VoiceMicButton extends StatelessWidget {
       return;
     }
 
-    switch (result) {
-      case NavigateGPTRespModel nav:
-        _navigateOption(nav, context);
-        break;
-      case ReportGPTRespModel rep:
-        _reportOption(rep, context);
-        break;
-      case UnknownGPTRespModel unk:
-        _unknownOption(unk, context);
-        break;
+    if (result is UnknownGPTRespModel) {
+      if (context.mounted) _showSnackBar("No se reconoció la instrucción", context);
     }
 
-    // print("handleTap: $voice");
-    // print("handleTap: $mapProvider");
-    // final isListening = voice.isListening;
-    // final isProcessing = voice.isProcessing;
-    // if (isProcessing || mapProvider.currentLocation == null) return;
+    if (result is NavigateGPTRespModel) {
+      _navigateOption(result, context);
+    }
 
-    // print("handleTap-isListening: $isListening");
-    // print("handleTap-isProcessing: $isProcessing");
-
-    // if (isListening) {
-    //   final result = await voice.stopListening();
-    //   if (result == null || !context.mounted) {
-    //     if (context.mounted) _showSnackBar("Algo salió mal", context);
-    //     return;
-    //   }
-
-    //   switch (result) {
-    //     case NavigateGPTRespModel nav:
-    //       _navigateOption(nav, context);
-    //       break;
-    //     case ReportGPTRespModel rep:
-    //       _reportOption(rep, context);
-    //       break;
-    //     case UnknownGPTRespModel unk:
-    //       _unknownOption(unk, context);
-    //       break;
-    //   }
-    // } else {
-    //   print("Inicianto el listening we");
-    //   voice.startListening();
-    // }
+    if (result is ReportGPTRespModel) {
+      _reportOption(result, context);
+    }
   }
 }
