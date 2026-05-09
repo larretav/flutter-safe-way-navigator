@@ -6,8 +6,6 @@ import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/enum/report-severity.enum.dart';
 import 'package:widgets_easier/widgets_easier.dart';
 
-
-
 typedef MenuEntry = DropdownMenuEntry<String>;
 const List<String> incidentTypes = [
   "Accidente",
@@ -58,15 +56,13 @@ class _ReportScreenState extends State<ReportScreen> {
               const SizedBox(height: 16),
 
               // Ubicación
-              const Text("Ubicación",
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Ubicación", style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
               const CurrentAddress(),
               const SizedBox(height: 16),
 
               // Tipo de incidente
-              const Text("Tipo de incidente",
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Tipo de incidente", style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
               Expanded(
                 child: DropdownMenu<String>(
@@ -97,8 +93,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
               const SizedBox(height: 16),
               // Gravedad (leve, moderado, grave)
-              const Text("Gravedad",
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text("Gravedad", style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
 
               SegmentedButton(
@@ -117,8 +112,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   ),
                 ],
                 style: SegmentedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                 ),
                 selected: <ReportSeverity>{severity},
                 onSelectionChanged: (newSelection) {
@@ -141,8 +135,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   hintText: "Agrega más detalles...",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 ),
               ),
 
@@ -164,8 +157,8 @@ class _ReportScreenState extends State<ReportScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     // TODO: enviar reporte a Provider o BD
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Incidente reportado con éxito ✅")));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Incidente reportado con éxito ✅")));
                     Navigator.pop(context);
                   }
                 },
@@ -194,10 +187,8 @@ class UploadEvidence extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
-        decoration: ShapeDecoration(
-            shape: DashedBorder(borderRadius: BorderRadius.circular(10))),
-        child: const Text("Subir/Tomar foto",
-            style: TextStyle(color: Colors.black54)),
+        decoration: ShapeDecoration(shape: DashedBorder(borderRadius: BorderRadius.circular(10))),
+        child: const Text("Subir/Tomar foto", style: TextStyle(color: Colors.black54)),
       ),
     );
   }
@@ -211,8 +202,7 @@ class CurrentAddress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.only(top: 8.0, left: 12.0, right: 4.0, bottom: 8.0),
+      padding: const EdgeInsets.only(top: 8.0, left: 12.0, right: 4.0, bottom: 8.0),
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(12.0),
@@ -221,7 +211,8 @@ class CurrentAddress extends StatelessWidget {
         children: [
           Expanded(
             child: Consumer<MapProvider>(
-                builder: (context, map, _) =>  Text( map.currentAddress ?? "Obteniendo dirección...", style: const TextStyle(fontWeight: FontWeight.w600))),
+                builder: (context, map, _) => Text(map.currentAddress ?? "Obteniendo dirección...",
+                    style: const TextStyle(fontWeight: FontWeight.w600))),
           ),
           IconButton(
               onPressed: () {

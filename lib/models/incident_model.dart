@@ -1,15 +1,17 @@
 import 'dart:convert';
 
-Map<String, Incident> incidentFromJson(String str) => Map.from(json.decode(str))
-    .map((k, v) => MapEntry<String, Incident>(k, Incident.fromJson(v)));
+import 'package:safe_way_navigator/enum/report-severity.enum.dart';
 
-String incidentToJson(Map<String, Incident> data) => json.encode(
-    Map.from(data).map((k, v) => MapEntry<String, dynamic>(k, v.toMap())));
+Map<String, Incident> incidentFromJson(String str) =>
+    Map.from(json.decode(str)).map((k, v) => MapEntry<String, Incident>(k, Incident.fromJson(v)));
+
+String incidentToJson(Map<String, Incident> data) =>
+    json.encode(Map.from(data).map((k, v) => MapEntry<String, dynamic>(k, v.toMap())));
 
 class Incident {
   String type; // Ej: "choque", "inundación", "embotellamiento"
   String location; // Ubicación exacta o calle
-  String severity; // "baja", "media", "alta"
+  ReportSeverity severity; // "baja", "media", "alta"
   String? description; // Texto opcional
   DateTime dateTime; // Fecha y hora del reporte
   bool active; // true si sigue activo, false si resuelto
@@ -50,7 +52,7 @@ class Incident {
   Incident copyWith({
     String? type,
     String? location,
-    String? severity,
+    ReportSeverity? severity,
     String? description,
     DateTime? dateTime,
     bool? active,
