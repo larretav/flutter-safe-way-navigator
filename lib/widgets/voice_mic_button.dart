@@ -127,10 +127,6 @@ class VoiceMicButton extends StatelessWidget {
     Navigator.pushNamed(context, '/report', arguments: report);
   }
 
-  void _unknownOption(UnknownGPTRespModel unk, BuildContext context) {
-    print("Desconocido: ${unk}");
-  }
-
   void _showSnackBar(String message, BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
