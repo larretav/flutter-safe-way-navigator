@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_way_navigator/providers/map_provider.dart';
 import 'package:safe_way_navigator/enum/report-severity.enum.dart';
+import 'package:safe_way_navigator/services/incident_service.dart';
 import 'package:widgets_easier/widgets_easier.dart';
 
 typedef MenuEntry = DropdownMenuEntry<String>;
@@ -15,6 +16,22 @@ const List<String> incidentTypes = [
   "Bache"
 ];
 
+// Mapea los labels de la UI a los valores que espera el server (ver
+// VALID_TYPES en safe-way-prolog-server/src/routes/incidentes.js).
+const Map<String, String> _incidentTypeToServerValue = {
+  "Accidente": "choque",
+  "Embotellamiento": "embotellamiento",
+  "Inundación": "inundacion",
+  "Obra/Construcción": "obra",
+  "Bache": "otro",
+};
+
+const Map<ReportSeverity, String> _severityToServerValue = {
+  ReportSeverity.mild: "leve",
+  ReportSeverity.moderate: "moderado",
+  ReportSeverity.severe: "grave",
+};
+
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
@@ -25,7 +42,7 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  String? _incidentType;
+  String _incidentType = incidentTypes.first;
   String? _location = "Blvd. Francisco Agraz, Tepeca, 81248 Los Mochis, Sin.";
   ReportSeverity severity = ReportSeverity.mild;
   final TextEditingController _descriptionController = TextEditingController();
@@ -154,12 +171,27 @@ class _ReportScreenState extends State<ReportScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // TODO: enviar reporte a Provider o BD
-                    ScaffoldMessenger.of(context).showSnackBar(
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) return;
+
+                  final roadName = context.read<MapProvider>().currentAddress;
+                  final messenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
+
+                  try {
+                    await IncidentService.reportIncident(
+                      roadName: roadName ?? _location ?? "Ubicación desconocida",
+                      type: _incidentTypeToServerValue[_incidentType]!,
+                      severity: _severityToServerValue[severity]!,
+                      description: _descriptionController.text.trim().isEmpty
+                          ? null
+                          : _descriptionController.text.trim(),
+                    );
+                    messenger.showSnackBar(
                         const SnackBar(content: Text("Incidente reportado con éxito ✅")));
-                    Navigator.pop(context);
+                    navigator.pop();
+                  } catch (e) {
+                    messenger.showSnackBar(SnackBar(content: Text("$e")));
                   }
                 },
                 icon: const Icon(Icons.check),
