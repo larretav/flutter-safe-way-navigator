@@ -22,6 +22,10 @@ class MapProvider with ChangeNotifier {
   LocationPlace? _origin;
   LocationPlace? _destination;
 
+  String? _riskLevel;
+  List<String> _tips = [];
+  String? _routeError;
+
   LatLng? get selectedLocation => _selectedLocation;
   String? get currentAddress => _currentAddress;
   LatLng? get currentLocation => _currentLocation;
@@ -29,6 +33,10 @@ class MapProvider with ChangeNotifier {
   LocationPlace? get origin => _origin;
   LocationPlace? get destination => _destination;
   Set<Polyline> get polylines => _polylines;
+
+  String? get riskLevel => _riskLevel;
+  List<String> get tips => _tips;
+  String? get routeError => _routeError;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -161,22 +169,44 @@ class MapProvider with ChangeNotifier {
       return;
     }
 
-    final points = await DirectionsService.getRoutePoints(_origin!.latlng, _destination!.latlng);
+    try {
+      final result = await DirectionsService.getBestRoute(_origin!, _destination!);
 
-    _polylines = {
-      Polyline(
-        polylineId: const PolylineId('route'),
-        color: Colors.blue,
-        width: 5,
-        points: points,
-      )
-    };
+      _polylines = {
+        Polyline(
+          polylineId: const PolylineId('route'),
+          color: _colorForRisk(result.riskLevel),
+          width: 5,
+          points: result.points,
+        )
+      };
+      _riskLevel = result.riskLevel;
+      _tips = result.tips;
+      _routeError = null;
 
-    notifyListeners();
+      notifyListeners();
 
-    // Para centrar
-    final bounds = _getBounds(points);
-    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+      // Para centrar
+      final bounds = _getBounds(result.points);
+      mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+    } catch (e) {
+      _polylines.clear();
+      _riskLevel = null;
+      _tips = [];
+      _routeError = 'No se pudo calcular la ruta: $e';
+      notifyListeners();
+    }
+  }
+
+  Color _colorForRisk(String riskLevel) {
+    switch (riskLevel) {
+      case 'alto':
+        return Colors.red;
+      case 'medio':
+        return Colors.orange;
+      default:
+        return Colors.blue;
+    }
   }
 
   LatLngBounds _getBounds(List<LatLng> points) {

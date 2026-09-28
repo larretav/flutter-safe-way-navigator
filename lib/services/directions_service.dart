@@ -2,26 +2,47 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:safe_way_navigator/models/location_model.dart';
+import 'package:safe_way_navigator/models/route_result_model.dart';
 
 class DirectionsService {
-  static const String _baseUrl = 'https://maps.googleapis.com/maps/api/directions/json';
-  static final String _apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? "";
+  static final String _baseUrl = dotenv.env['PROLOG_SERVER_URL'] ?? 'http://localhost:3001';
 
-  static Future<List<LatLng>> getRoutePoints(LatLng origin, LatLng destination) async {
-    final url = Uri.parse(
-      '$_baseUrl?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$_apiKey',
+  static Future<RouteResult> getBestRoute(LocationPlace origin, LocationPlace destination) async {
+    final url = Uri.parse('$_baseUrl/ruta-optima');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'origen': {
+          'address': origin.address,
+          'lat': origin.latlng.latitude,
+          'lng': origin.latlng.longitude,
+        },
+        'destino': {
+          'address': destination.address,
+          'lat': destination.latlng.latitude,
+          'lng': destination.latlng.longitude,
+        },
+      }),
     );
 
-    final response = await http.get(url);
+    final data = json.decode(response.body);
+
     if (response.statusCode != 200) {
-      throw Exception('Error al obtener la ruta');
+      throw Exception(data['error'] ?? 'Error al obtener la ruta (${response.statusCode})');
     }
 
-    final data = json.decode(response.body);
-    final route = data['routes'].first;
-    final polyline = route['overview_polyline']['points'];
-
-    return _decodePolyline(polyline);
+    return RouteResult(
+      points: _decodePolyline(data['overviewPolyline']),
+      distanceMeters: (data['distanceMeters'] as num).toDouble(),
+      baseDurationMinutes: (data['baseDurationMinutes'] as num).toDouble(),
+      adjustedTimeMinutes: (data['adjustedTimeMinutes'] as num).toDouble(),
+      riskLevel: data['riskLevel'] as String,
+      allRisky: data['allRisky'] as bool,
+      tips: List<String>.from(data['tips'] ?? []),
+    );
   }
 
   // 🔹 Decodifica la polyline codificada de Google a una lista de LatLng
