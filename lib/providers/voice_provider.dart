@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:record/record.dart';
@@ -8,13 +6,17 @@ import 'package:safe_way_navigator/models/gpt_resp_model.dart';
 import 'package:safe_way_navigator/services/chatgpt_service.dart';
 import '../services/whisper_service.dart';
 
-import 'package:porcupine_flutter/porcupine_manager.dart';
-import 'package:porcupine_flutter/porcupine_error.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class VoiceProvider extends ChangeNotifier {
-  PorcupineManager? _porcupine;
+  static const String _wakeWordPhrase = "hola mapa";
+
+  final stt.SpeechToText _wakeWordRecognizer = stt.SpeechToText();
   final _recorder = AudioRecorder();
+
+  VoidCallback? _onWakeWord;
+  bool _wakeWordPaused = false;
 
   bool _isListening = false;
   bool _isProcessing = false;
@@ -24,8 +26,6 @@ class VoiceProvider extends ChangeNotifier {
   bool get isProcessing => _isProcessing;
   bool get isWakeWordInitialized => _isWakeWordInitialized;
 
-  final String _porcupineApiKey = dotenv.env['PORCUPINE_API_KEY'] ?? "";
-
   /// Obtiene un archivo temporal para guardar la grabación
   Future<String> _getTempFilePath() async {
     final dir = await getTemporaryDirectory();
@@ -33,33 +33,55 @@ class VoiceProvider extends ChangeNotifier {
     return filePath;
   }
 
-  // Inicializar WakeWord
+  /// Inicializa la escucha de la frase de activación ("Hola Mapa") usando
+  /// el reconocedor de voz nativo del dispositivo (gratis, sin API key).
   Future<void> initWakeWord(VoidCallback onWakeWord) async {
     if (_isWakeWordInitialized) return;
-    try {
-      print("Porcupine: Iniciando wake word...");
+    _onWakeWord = onWakeWord;
 
-      _porcupine = await PorcupineManager.fromKeywordPaths(
-          _porcupineApiKey,
-          [
-            "assets/hola-mapa_es_android_v3_0_0.ppn",
-          ],
-          (int keywordIndex) => onWakeWord(),
-          modelPath: "assets/porcupine_params_es.pv");
+    final available = await _wakeWordRecognizer.initialize(
+      onError: (error) => debugPrint("speech_to_text: error $error"),
+      onStatus: (status) {
+        debugPrint("speech_to_text: status $status");
+        if (!_wakeWordPaused && (status == 'done' || status == 'notListening')) {
+          _startWakeWordListening();
+        }
+      },
+    );
 
-      _isWakeWordInitialized = true;
-      notifyListeners();
-      await _porcupine!.start();
-      debugPrint("Porcupine: listening...");
-    } on PorcupineException catch (e) {
-      debugPrint("Porcupine: Error al inicializar wake word: $e");
+    if (!available) {
+      debugPrint("speech_to_text: reconocimiento de voz no disponible en este dispositivo.");
+      return;
     }
+
+    _isWakeWordInitialized = true;
+    notifyListeners();
+    _startWakeWordListening();
+  }
+
+  void _startWakeWordListening() {
+    _wakeWordRecognizer.listen(
+      listenOptions: stt.SpeechListenOptions(
+        partialResults: true,
+        listenFor: const Duration(seconds: 60),
+        pauseFor: const Duration(seconds: 60),
+        localeId: 'es_MX',
+      ),
+      onResult: (result) {
+        final heard = result.recognizedWords.toLowerCase();
+        if (heard.contains(_wakeWordPhrase)) {
+          _wakeWordRecognizer.stop();
+          _onWakeWord?.call();
+        }
+      },
+    );
   }
 
   // Iniciar grabacion, esperar y procesar
   Future<GPTRespModel?> recordAndProcess(LatLng? currentLocation) async {
     if (currentLocation == null) return null;
-    await _porcupine?.stop();
+    _wakeWordPaused = true;
+    await _wakeWordRecognizer.stop();
 
     // Pedir permisos
     if (await _recorder.hasPermission()) {
@@ -102,18 +124,24 @@ class VoiceProvider extends ChangeNotifier {
 
         if (text != null && text.trim().isNotEmpty) {
           _isProcessing = false;
-          await _porcupine?.start();
+          _resumeWakeWordListening();
           notifyListeners();
           return await ChatGPTService.interpretCommand(text);
         }
       } catch (e) {
-        print("Error al transcribir audio: " + e.toString());
+        debugPrint("Error al transcribir audio: $e");
       }
     }
 
     _isProcessing = false;
+    _resumeWakeWordListening();
     notifyListeners();
     return null;
+  }
+
+  void _resumeWakeWordListening() {
+    _wakeWordPaused = false;
+    if (_isWakeWordInitialized) _startWakeWordListening();
   }
 
   /// Cuando estamos procesando el audio (Whisper después)
@@ -129,7 +157,7 @@ class VoiceProvider extends ChangeNotifier {
   }
 
   Future<void> disposeWakeWord() async {
-    await _porcupine?.stop();
-    await _porcupine?.delete();
+    _wakeWordPaused = true;
+    await _wakeWordRecognizer.stop();
   }
 }
